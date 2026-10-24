@@ -1,0 +1,3 @@
+{"file":".trellis/tasks/10-23-unified-plugin-manager/research/source-build-flow.md","reason":"Review automatic build migration against the original pipeline"}
+{"file":".trellis/tasks/10-23-unified-plugin-manager/research/multi-plugin-composition.md","reason":"Review patch cooperation, test migration, dependency boundaries, and recursive license inventory"}
+{"file":".trellis/tasks/10-23-unified-plugin-manager/research/installer-version-detection.md","reason":"Review real version parsing, advisory warnings, explicit continuation, default cancellation before replacement, and candidate cleanup"}
