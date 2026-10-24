@@ -1,0 +1,3 @@
+[submodule "plugins/codex-candy-eval"]
+	path = plugins/codex-candy-eval
+	url = https://github.com/Nanboom233/codex-candy-eval
