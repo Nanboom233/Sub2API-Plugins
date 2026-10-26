@@ -1,0 +1,41 @@
+{
+  "id": "apikey-quota-monitoring",
+  "name": "apikey-quota-monitoring",
+  "title": "API key account quota monitoring",
+  "description": "Extend the existing account usage display for API-key accounts through the sub2api-quota-extension plugin.",
+  "status": "completed",
+  "dev_type": "fullstack",
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "sub2api-plugins",
+  "assignee": "sub2api-plugins",
+  "createdAt": "2026-10-25",
+  "completedAt": "2026-10-26",
+  "branch": "feat/apikey-quota-extension",
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": "a5f792d90c07511c7abb19a4f8b9ae67faa63f03",
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "Implementation and full-scope review passed on 2026-10-26. The user's silent-failure revision then passed independent review and the default combined build, exit 0. Latest log: /tmp/sub2api-quota-silent-build.HOVWHm. Development source: /tmp/sub2api-quota-dev.LOZjym/source. Outputs: dist/build/sub2api-plugins and dist/build/sub2api-plugins-installer. The build passed both plugin suites, native Vue cases, frontend i18n/type/build, Go vet, root runner tests, and installer tests. Failed quota queries add no quota fields, error descriptions, or error codes. Existing native fields and errors remain intact. The user approved both work commits and local finish operations. Signed plugin commit: c15a45417e93b35372fcbcfdcfe8f1023c4be8cb. Signed parent commit: a5f792d90c07511c7abb19a4f8b9ae67faa63f03. Both signatures verified. The parent records the plugin gitlink. The public plugin remote still has no code because no push has occurred. GitHub credential use remains unapproved.",
+  "meta": {
+    "github_credential_authorization": {
+      "approved": false,
+      "credential_source": "Existing local gh login",
+      "target_repository": "Nanboom233/sub2api-quota-extension",
+      "visibility": "public",
+      "operations_already_performed": [
+        "Authenticated repository metadata queries",
+        "Created the public repository"
+      ],
+      "user_correction": "GitHub credential use requires explicit approval and must appear in the plan. Feature-plan approval did not grant it.",
+      "further_authenticated_operations": "Await explicit user approval",
+      "code_committed_or_pushed": true,
+      "code_pushed": false
+    }
+  }
+}

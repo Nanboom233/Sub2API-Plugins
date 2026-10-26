@@ -1,0 +1,10 @@
+{"file":".trellis/spec/backend/index.md","reason":"Current plugin delivery scope and native service integration rules"}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Submodule patches, flat tests, original licenses, and temporary native test placement"}
+{"file":".trellis/spec/backend/minimal-linux-delivery.md","reason":"Automatic discovery, combined source build, failure propagation, and unchanged installer contract"}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Limit checks to changed behavior and reuse default build evidence without extra acceptance gates"}
+{"file":".trellis/spec/guides/index.md","reason":"User rule against unsolicited documents and manifests"}
+{"file":".trellis/tasks/10-25-apikey-quota-monitoring/research/api-key-quota-contract.md","reason":"Verified endpoint, authentication, response modes, omission semantics, and billing units"}
+{"file":".trellis/tasks/10-25-apikey-quota-monitoring/research/upstream-rate-detection.md","reason":"Independent quota capability and confirmed Simple-mode declaration gap"}
+{"file":".trellis/tasks/10-25-apikey-quota-monitoring/research/backend-integration.md","reason":"Existing usage owner, batch callers, local counters, and shared transport"}
+{"file":".trellis/tasks/10-25-apikey-quota-monitoring/research/frontend-integration.md","reason":"Existing cell, batch queue, refresh behavior, and native Vue runtime"}
+{"file":".trellis/tasks/10-25-apikey-quota-monitoring/research/integration-contracts.md","reason":"Native caller preservation, dependency injection, and flat Vue suites"}

@@ -1,0 +1,7 @@
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Focused checks, default build evidence, test ownership, and commit boundary"}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Review actual flat test sources and data-only assets"}
+{"file":".trellis/spec/backend/minimal-linux-delivery.md","reason":"Review combined patch composition, build failure behavior, and installer preservation"}
+{"file":".trellis/spec/guides/index.md","reason":"Prevent unsolicited documents and manifests"}
+{"file":".trellis/tasks/10-25-apikey-quota-monitoring/research/api-key-quota-contract.md","reason":"Check native field mapping, omitted and zero values, ignored unlimited sentinel, and billing units against the current design"}
+{"file":".trellis/tasks/10-25-apikey-quota-monitoring/research/integration-contracts.md","reason":"Check that channel monitor files stay unchanged and preserve native provider callers and frontend test runtime"}
+{"file":".trellis/tasks/10-25-apikey-quota-monitoring/research/frontend-integration.md","reason":"Check existing cache, batch, mobile load, refresh, and local display behavior"}
