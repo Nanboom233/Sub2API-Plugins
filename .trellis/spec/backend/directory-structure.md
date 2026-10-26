@@ -23,6 +23,7 @@ plugins/<name>/patches/*.patch    Lexically ordered production patches
 plugins/<name>/tests/test_*.py    Python test cases
 plugins/<name>/tests/test_*.go    Native Go suites or standalone Go cases
 plugins/<name>/tests/test_*.cjs   Native UI test cases
+plugins/<name>/tests/test_*.test.ts Native Vue component suites
 plugins/<name>/tests/native_*     Manual test fixture and support code
 plugins/<name>/assets/           Data resources
 plugins/<name>/scripts/          Standalone build helpers
@@ -66,7 +67,14 @@ Keep `tests/` flat. Native suites use `test_*_test.go` names with their original
 The `// sub2api-package:` annotation identifies the native package in temporary source.
 For example, `// sub2api-package: backend/internal/codexeval` preserves private package access without a public testing API.
 The runner stages and executes native suites directly. Test code must not live in assets or encoded source strings.
+Native Vue suites use flat `test_*.test.ts` files. Keep their TypeScript support files in the same `tests/` directory.
+The common runner stages these files under a temporary frontend `src/` directory and uses the native Vitest config.
+Run explicit suite paths once. Remove staged files after success or failure.
 Keep manual container fixture helpers under plugin `tests/native_*`, outside automatic `test_*` discovery.
+
+The quota plugin lives at `plugins/sub2api-quota-extension`.
+Its [production patch](../../../plugins/sub2api-quota-extension/patches/quota-extension.patch) extends native account usage.
+See [API Key Account Usage](./api-key-quota.md) for its service and frontend contracts.
 
 Evidence: [repository layout and private configuration](../../../AGENTS.md).
 

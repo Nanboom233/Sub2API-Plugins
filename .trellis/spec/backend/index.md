@@ -14,6 +14,7 @@ Installation uses one self-extracting Go executable with an embedded server and 
 | [Directory Structure](./directory-structure.md) | Current native code, tests, and delivery owners |
 | [Administrator Evaluation](./runtime-installation.md) | Sending, task APIs, history, page and native session contracts |
 | [Native Candy Inspection](./native-inspection.md) | Automatic rounds, native settings, priority changes and the Settings tab |
+| [API Key Account Usage](./api-key-quota.md) | Upstream quota mapping, native usage cells, transport, and focused tests |
 | [Binary Delivery](./minimal-linux-delivery.md) | Automatic source download, composition, version warnings, and replacement/restoration |
 | [Persistence](./database-guidelines.md) | Native settings and versioned three-map JSON history |
 | [Error Handling](./error-handling.md) | Actual errors, cancellation and shared bounded retries |

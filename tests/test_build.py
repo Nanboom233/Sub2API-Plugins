@@ -90,9 +90,12 @@ class BuildTests(unittest.TestCase):
             'assert.ok(process.env.SUB2API_SOURCE);\n'
             f'require("node:fs").appendFileSync({event_path}, "alpha:node\\n");\n'
         )
+        (native / "test_e_quota.test.ts").write_text("import './native_fixture'\n")
+        (native / "native_fixture.ts").write_text("export const fixture = 21\n")
         seed = directory / "seed"
         (seed / "backend").mkdir(parents=True)
         (seed / "frontend").mkdir()
+        (seed / "frontend/src").mkdir()
         (seed / "backend/go.mod").write_text("module fixture\n\ngo 1.27.0\n")
         (seed / "backend/internal/eval").mkdir(parents=True)
         (seed / "backend/internal/eval/eval.go").write_text("package eval\nfunc value() int { return 21 }\n")
@@ -122,6 +125,14 @@ class BuildTests(unittest.TestCase):
             elif args[0] == "corepack":
                 if failure == "dependency":
                     raise subprocess.CalledProcessError(1, args)
+                if args[2:5] == ["exec", "vitest", "run"]:
+                    suite = Path(cwd) / args[5]
+                    self.assertEqual(suite.read_text(), "import './native_fixture'\n")
+                    self.assertTrue((suite.parent / "native_fixture.ts").is_file())
+                    if failure == "vue":
+                        raise subprocess.CalledProcessError(1, args)
+                    with (Path(cwd).parents[2] / "project/events").open("a") as log:
+                        log.write("alpha:vue\n")
             elif args[:2] == ["go", "vet"]:
                 self.assertEqual(args[2:], ["./internal/server", "./internal/server/routes", "./internal/web"])
             elif args[:2] == ["go", "build"]:
@@ -145,12 +156,13 @@ class BuildTests(unittest.TestCase):
             self.assertEqual([item.read_bytes() for item in artifacts], [b"built output", b"built output"])
             self.assertEqual((root / "events").read_text().splitlines(), [
                 "alpha:python", "alpha:go", "alpha:native-first", "alpha:native-second",
-                "alpha:node", "project:python", "project:go",
+                "alpha:node", "alpha:vue", "project:python", "project:go",
             ])
             native_calls = [call for call in calls if call[:2] == ["go", "test"]]
             self.assertEqual(len(native_calls), 1)
             self.assertEqual(native_calls[0][native_calls[0].index("-run") + 1], "^(TestFirst|TestSecond)$")
             self.assertFalse((workspace / "source/backend/internal/eval/test_c_first_test.go").exists())
+            self.assertEqual(list((workspace / "source/frontend/src").iterdir()), [])
             patches = [Path(call[-1]).name for call in calls if call[:2] == ["git", "apply"]]
             self.assertEqual(patches, ["a.patch", "z.patch", "change.patch"])
             self.assertEqual(sum(call[:2] == ["go", "build"] and call[-1] == "." for call in calls), 1)
@@ -161,7 +173,7 @@ class BuildTests(unittest.TestCase):
             self.assertEqual((seed / "shared.txt").read_text(), BASE)
 
     def test_failures_stop_publication(self):
-        for failure in ("source", "dependency", "patch", "test", "native"):
+        for failure in ("source", "dependency", "patch", "test", "native", "vue"):
             with self.subTest(failure=failure), tempfile.TemporaryDirectory() as temporary:
                 directory = Path(temporary)
                 root, seed = self.fixture(directory)
@@ -188,6 +200,8 @@ class BuildTests(unittest.TestCase):
                 if failure == "native":
                     self.assertNotIn("alpha:native-second", (root / "events").read_text())
                     self.assertFalse(any(call[0] == "node" for call in calls))
+                if failure == "vue":
+                    self.assertEqual(list((workspace / "source/frontend/src").iterdir()), [])
                 for name in ("sub2api-plugins", "sub2api-plugins-installer"):
                     self.assertEqual((root / "dist/build" / name).read_text(), "previous " + name)
 

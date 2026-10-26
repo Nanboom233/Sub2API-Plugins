@@ -6,7 +6,10 @@
 
 ## Overview
 
-This directory contains guidelines for frontend development. Fill in each file with your project's specific conventions.
+The current quota extension uses native Sub2API account cells and the existing single/batch usage flow.
+Use [API Key Account Usage](../backend/api-key-quota.md) for the implemented cross-layer contract.
+Use [Quality and Commits](../backend/quality-guidelines.md) for the default build and focused validation rules.
+The template guides below remain unfilled and do not add acceptance requirements.
 
 ---
 
@@ -14,6 +17,7 @@ This directory contains guidelines for frontend development. Fill in each file w
 
 | Guide | Description | Status |
 |-------|-------------|--------|
+| [API Key Account Usage](../backend/api-key-quota.md) | Native field mapping, usage cell rendering, query eligibility, and tests | Current |
 | [Directory Structure](./directory-structure.md) | Module organization and file layout | To fill |
 | [Component Guidelines](./component-guidelines.md) | Component patterns, props, composition | To fill |
 | [Hook Guidelines](./hook-guidelines.md) | Custom hooks, data fetching patterns | To fill |

@@ -7,6 +7,14 @@
 Do not create or modify documentation or manifest files unless the user explicitly requests them.
 Trellis-managed artifacts are exempt.
 
+## GitHub Credential Use
+
+Obtain explicit user approval before using the user's GitHub credentials, including an existing `gh` login or Git authentication.
+This applies to authenticated reads and remote changes.
+State the credential source, target account/repository, operations, and intended repository visibility in the plan before requesting approval.
+Feature-plan approval alone does not authorize credential use unless that approval explicitly covers these details.
+Continue local work and unauthenticated public reads within their existing authorization.
+
 ---
 
 ## Why Thinking Guides?

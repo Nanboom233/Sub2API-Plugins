@@ -143,8 +143,11 @@ Bad: compile upstream sources or require nc/buildx/helper images on the user's h
 ## 6. Tests Required
 
 All test cases, assertions, and support code live in flat `tests/`. `assets/` contains data resources only.
-The argument-free build discovers `test_*.py`, `test_*.go`, and `test_*.cjs` files automatically.
+The argument-free build discovers `test_*.py`, `test_*.go`, `test_*.cjs`, and `test_*.test.ts` files automatically.
 Run Python and CJS tests directly with Python and Node. Preserve `go run` support for standalone Go cases.
+Stage native Vue suites and their flat TypeScript support files under a temporary directory in the downloaded frontend's `src/`.
+Run explicit suite paths with the existing pinned pnpm and native Vitest config. Clean that directory after success or failure.
+Keep existing Python, Go, and CJS discovery and execution behavior.
 Native suites use `test_*_test.go` names and `// sub2api-package:` annotations.
 Use `backend/internal/codexeval`, `backend/internal/service`, or `backend/internal/handler/admin` for the evaluation plugin's native packages.
 Use `installer` for the common installer suite.

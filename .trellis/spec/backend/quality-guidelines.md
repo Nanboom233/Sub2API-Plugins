@@ -28,6 +28,9 @@ Use [the native installer tests](../../../tests/test_installer_test.go) directly
 Run these tests in the build's temporary host-platform installer module. Keep Linux/amd64 release flags separate.
 Native Go suites use flat `test_*_test.go` files and `// sub2api-package:` annotations for temporary package placement.
 Execute each discovered Go case once with native `go test`. Preserve standalone Go program support and direct Python/CJS execution.
+Native Vue cases use flat `tests/test_*.test.ts` suites and the downloaded frontend's existing Vitest runtime.
+The common runner stages suites and support files temporarily, runs explicit suite paths, and cleans the files after success or failure.
+Keep upstream response mapping in backend tests. Vue tests consume mapped fields without repeating that response matrix.
 Do not hide test suites in assets, encoded payloads, or source strings behind wrapper entries.
 Reuse the existing fake-Docker and local HTTP harness for changed installer behavior.
 Automatic acceptance requires no retained Docker container or manual browser session.
