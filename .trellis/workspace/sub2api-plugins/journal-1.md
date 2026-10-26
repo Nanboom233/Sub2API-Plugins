@@ -45,3 +45,44 @@ Complete the automatic Sub2API v0.2.18 plugin build and installer. Record the ap
 ### Next Steps
 
 - Publish plugin revision 9a56c08 before sharing a reproducible remote parent checkout.
+
+
+## Session 2: API-key quota usage extension
+<!-- trellis-session: v=2 fp=14af7892dcb9cfd3 -->
+
+**Date**: 2026-10-26
+**Task**: API-key quota usage extension
+**Branch**: `feat/apikey-quota-extension`
+
+### Summary
+
+Extend native account usage with upstream quota through a submodule plugin. Failed quota queries remain silent.
+
+### Main Changes
+
+- Add independent upstream usage reads, native field mapping, and existing account-cell rendering.
+- Add flat native Go and Vue tests and native Vue discovery in the common build.
+- Preserve native provider errors, local usage, refresh behavior, and account scheduling.
+- Record the GitHub credential approval rule. Perform only local signed commits during finish work.
+- Archive the task. Recover its scoped commit after the native archive command included an untracked old source path.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `c15a45417e93b35372fcbcfdcfe8f1023c4be8cb` | feat(quota): extend native API-key usage reporting |
+| `a5f792d90c07511c7abb19a4f8b9ae67faa63f03` | feat(quota): compose API-key quota extension builds |
+
+### Testing
+
+- [OK] Default combined build passed with exit 0: /tmp/sub2api-quota-silent-build.HOVWHm.
+- [OK] Both plugin suites, Vue render and refresh cases, frontend type and i18n checks, Go vet, runner tests, and installer tests passed.
+- [OK] Independent full-scope review and silent-failure review found no remaining defects.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- Remote publication requires explicit approval for GitHub credential use and pushes.
