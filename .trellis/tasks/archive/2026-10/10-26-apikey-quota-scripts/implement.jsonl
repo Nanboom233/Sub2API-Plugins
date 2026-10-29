@@ -1,0 +1,12 @@
+{"file":".trellis/spec/backend/api-key-quota.md","reason":"Existing native fields, silent default-query failures, and provider behavior. The task requires visible custom-script errors."}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Submodule patch ownership, original licenses, and flat test sources"}
+{"file":".trellis/spec/backend/minimal-linux-delivery.md","reason":"Pinned source, readonly modules, static binary delivery, and automatic combined build"}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Focused tests, one integrated build, and commit/finish boundaries"}
+{"file":".trellis/spec/frontend/index.md","reason":"Native account-cell and usage-flow integration"}
+{"file":".trellis/spec/guides/index.md","reason":"Documentation restrictions and separate GitHub credential authorization"}
+{"file":".trellis/tasks/10-26-apikey-quota-scripts/design.md","reason":"Current period/unit contract, native editor design, create/edit draft tests, and custom-error policy"}
+{"file":".trellis/tasks/10-26-apikey-quota-scripts/research/local-integration.md","reason":"Existing extra storage, form owners, usage dispatch, and native account-preview integration"}
+{"file":".trellis/tasks/10-26-apikey-quota-scripts/research/script-runtime.md","reason":"Pinned interpreter APIs, cancellation, synchronous host functions, and actual limits"}
+{"file": ".trellis/tasks/10-26-apikey-quota-scripts/research/reset-date-code-plan.md", "reason": "Historical renderer research. Current PRD and design govern the approved weekly calculation and native account expiry correction."}
+{"file":".trellis/tasks/10-26-apikey-quota-scripts/research/default-quota-v0219.md","reason":"Current default key response, preserved timestamp flow, idle display, and separate local quota sources"}
+{"file":".trellis/tasks/10-26-apikey-quota-scripts/research/default-subscription-v0219.md","reason":"Subscription source facts and legacy anchor limits. Apply the later accepted weekly arithmetic and account-expiry decision without upstream deployment."}

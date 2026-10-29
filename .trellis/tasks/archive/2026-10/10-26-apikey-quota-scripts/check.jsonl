@@ -1,0 +1,13 @@
+{"file":".trellis/spec/backend/api-key-quota.md","reason":"Preserve native output, zero/omission semantics, and silent default failures. Check visible custom-script errors against the task design."}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Keep executable tests flat and production patches free of test code"}
+{"file":".trellis/spec/backend/minimal-linux-delivery.md","reason":"Verify combined patches, readonly dependencies, static output, and unchanged installer"}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Review changed behavior without duplicate suites or additional acceptance gates"}
+{"file":".trellis/spec/frontend/index.md","reason":"Native UI and existing refresh/caching behavior"}
+{"file":".trellis/spec/guides/index.md","reason":"Check documentation and GitHub credential authorization boundaries"}
+{"file":".trellis/tasks/10-26-apikey-quota-scripts/design.md","reason":"Check native period/unit mapping, requested editor interaction, create/edit draft tests, and visible custom failures"}
+{"file":".trellis/tasks/10-26-apikey-quota-scripts/implement.md","reason":"Focused test ownership, reuse of existing suites, and no extra acceptance gates"}
+{"file":".trellis/tasks/10-26-apikey-quota-scripts/research/local-integration.md","reason":"All API-key branches, form storage, and existing usage entry points"}
+{"file":".trellis/tasks/10-26-apikey-quota-scripts/research/script-runtime.md","reason":"Check runtime ownership, host cancellation, result conversion, and stated memory limitation"}
+{"file": ".trellis/tasks/10-26-apikey-quota-scripts/research/reset-date-code-plan.md", "reason": "Historical renderer research. Check current PRD and design for the later weekly calculation and native account expiry correction."}
+{"file":".trellis/tasks/10-26-apikey-quota-scripts/research/default-quota-v0219.md","reason":"Distinguish default response branches, reported reset instants, and idle or local display before judging a quota fix"}
+{"file":".trellis/tasks/10-26-apikey-quota-scripts/research/default-subscription-v0219.md","reason":"Check source facts and code comments against accepted weekly arithmetic. Expiry sets account expiration, never monthly reset."}
