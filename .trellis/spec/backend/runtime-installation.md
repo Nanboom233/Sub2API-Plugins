@@ -2,7 +2,7 @@
 
 ## 1. Scope / Trigger
 
-Use this contract for the evaluation plugin on Sub2API v0.2.18.
+Use this contract for the evaluation plugin on Sub2API v0.2.19.
 Production source lives in the [plugin patches](../../../plugins/codex-candy-eval/patches/), applied in lexical filename order.
 The [integration patch](../../../plugins/codex-candy-eval/patches/0007-sub2api-integration.patch) adds native routes, initialization, sidebar, URL resolution, page bypass, and navigation translations.
 The current implementation replaces the historical internal-key, activation, billing, maintenance and recovery designs.

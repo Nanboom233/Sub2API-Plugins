@@ -7,6 +7,7 @@
 ## Overview
 
 The current quota extension uses native Sub2API account cells and the existing single/batch usage flow.
+Custom scripts use one shared editor in create and edit forms, with inline tests against current draft connection settings.
 Use [API Key Account Usage](../backend/api-key-quota.md) for the implemented cross-layer contract.
 Use [Quality and Commits](../backend/quality-guidelines.md) for the default build and focused validation rules.
 The template guides below remain unfilled and do not add acceptance requirements.
@@ -17,7 +18,7 @@ The template guides below remain unfilled and do not add acceptance requirements
 
 | Guide | Description | Status |
 |-------|-------------|--------|
-| [API Key Account Usage](../backend/api-key-quota.md) | Native field mapping, usage cell rendering, query eligibility, and tests | Current |
+| [API Key Account Usage](../backend/api-key-quota.md) | Script editor, draft tests, native quota fields, cells, and refresh | Current |
 | [Directory Structure](./directory-structure.md) | Module organization and file layout | To fill |
 | [Component Guidelines](./component-guidelines.md) | Component patterns, props, composition | To fill |
 | [Hook Guidelines](./hook-guidelines.md) | Custom hooks, data fetching patterns | To fill |

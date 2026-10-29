@@ -7,7 +7,7 @@
 ## Overview
 
 Plugin submodules own production patches, business tests, and plugin license inputs.
-The common build downloads Sub2API v0.2.18 and combines every plugin under `plugins/` in one temporary source tree.
+The common build downloads Sub2API v0.2.19 and combines every plugin under `plugins/` in one temporary source tree.
 This repository has no root Go module or shared-library entry point.
 The user package replaces the server binary without compilation on the installation host.
 

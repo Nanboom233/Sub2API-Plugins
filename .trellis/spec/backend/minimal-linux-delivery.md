@@ -2,7 +2,7 @@
 
 ## 1. Scope / Trigger
 
-Deliver the combined Linux/amd64 v0.2.18 server for the standard `/app/sub2api` container layout.
+Deliver the combined Linux/amd64 v0.2.19 server for the standard `/app/sub2api` container layout.
 One self-extracting Go installer contains the compressed server and required license texts.
 Standalone cleanup was removed from delivery.
 
@@ -35,7 +35,7 @@ dist/build/sub2api-plugins-installer
 
 ## 3. Contracts
 
-Download `https://github.com/Wei-Shaw/sub2api.git` at tag `v0.2.18` with depth one into a temporary workspace.
+Download `https://github.com/Wei-Shaw/sub2api.git` at tag `v0.2.19` with depth one into a temporary workspace.
 Read plugin submodule paths under `plugins/` from `.gitmodules`. Use current checkouts without fetching or updating plugins during builds.
 Report uninitialized submodules with their initialization command.
 Sort plugins by relative path and top-level `patches/*.patch` files by filename.
@@ -50,8 +50,8 @@ There is no source overlay. Production patches contain no tests or test-only dat
 Every build executes discovered plugin tests against the combined source. The runner supplies temporary native package context.
 Preserve existing local source and plugin checkouts. Clean temporary workspaces on success and failure.
 Compile with Linux/amd64, CGO disabled and the native `embed` tag.
-The v0.2.18 source retains `0.2.17` in `backend/cmd/server/VERSION`.
-Derive canonical `0.2.18` from the selected tag and inject the same value into server and installer metadata.
+The v0.2.19 source retains `0.2.18` in `backend/cmd/server/VERSION`.
+Derive canonical `0.2.19` from the selected tag and inject the same value into server and installer metadata.
 Install dependencies from the combined source's frozen lockfile. Reuse normal pnpm and Go caches and keep Go modules readonly.
 Run native `pnpm build` before Go embed compilation. Original frontend output does not contain the patched routes.
 The build entry and release workflow use pnpm 9.15.9.
@@ -136,7 +136,7 @@ Container recreation discards writable-layer replacement and requires reapplicat
 
 ## 5. Good / Base / Bad Cases
 
-Good: include every plugin submodule in one v0.2.18 server and retain the installed executable backup.
+Good: include every plugin submodule in one v0.2.19 server and retain the installed executable backup.
 Base: a container recreated from its original image needs the same package reapplied.
 Bad: compile upstream sources or require nc/buildx/helper images on the user's host.
 
@@ -169,7 +169,7 @@ Build the final installer and check its executable format and release asset path
 Use focused fixtures for automatic discovery, shared-file cooperation, failure propagation, and recursive license contents.
 Test shared version parsing and confirmation once. Use installer fixtures for matching versions and combined-warning continuation or cancellation.
 Do not multiply parser cases by confirmation inputs or probe positions.
-Use one real v0.2.18 build for integration evidence. Do not run its test entries separately as another acceptance gate.
+Use one real v0.2.19 build for integration evidence. Do not run its test entries separately as another acceptance gate.
 Reuse passed evidence when inputs and affected behavior remain unchanged.
 No fixed test count, v0.2.17 comparison build, retained container, manual browser check, or additional full-suite matrix applies.
 

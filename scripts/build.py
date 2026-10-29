@@ -13,7 +13,7 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 UPSTREAM = "https://github.com/Wei-Shaw/sub2api.git"
-TAG = "v0.2.18"
+TAG = "v0.2.19"
 VERSION = TAG.removeprefix("v")
 PNPM = "pnpm@9.15.9"
 

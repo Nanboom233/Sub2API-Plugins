@@ -3,7 +3,7 @@
 ## Current Sub2API scope
 
 Use [administrator evaluation](./runtime-installation.md), [native inspection](./native-inspection.md), and [binary delivery](./minimal-linux-delivery.md) for current contracts.
-The delivery targets Sub2API v0.2.18 on Linux/amd64.
+The delivery targets Sub2API v0.2.19 on Linux/amd64.
 Installer version mismatches produce warnings and require explicit confirmation. Matching executable versions need no version prompt.
 The common build downloads upstream source and discovers every plugin submodule under `plugins/`.
 Plugins own patches and business tests. All assertions and test support code live in flat `tests/`. `assets/` contains data only.

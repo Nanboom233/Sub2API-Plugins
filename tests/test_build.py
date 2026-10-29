@@ -120,7 +120,7 @@ class BuildTests(unittest.TestCase):
             if args[:2] == ["git", "clone"]:
                 if failure == "source":
                     raise subprocess.CalledProcessError(1, args)
-                self.assertEqual(args[2:6], ["--depth", "1", "--branch", "v0.2.18"])
+                self.assertEqual(args[2:6], ["--depth", "1", "--branch", "v0.2.19"])
                 shutil.copytree(seed, Path(args[-1]))
             elif args[0] == "corepack":
                 if failure == "dependency":
@@ -137,7 +137,7 @@ class BuildTests(unittest.TestCase):
                 self.assertEqual(args[2:], ["./internal/server", "./internal/server/routes", "./internal/web"])
             elif args[:2] == ["go", "build"]:
                 self.assertEqual((env["GOOS"], env["GOARCH"], env["CGO_ENABLED"]), ("linux", "amd64", "0"))
-                self.assertIn("0.2.18", next(arg for arg in args if arg.startswith("-ldflags=")))
+                self.assertIn("0.2.19", next(arg for arg in args if arg.startswith("-ldflags=")))
                 Path(args[args.index("-o") + 1]).write_bytes(b"built output")
             else:
                 real_run(argv, cwd, env)
