@@ -86,3 +86,25 @@ Extend native account usage with upstream quota through a submodule plugin. Fail
 ### Next Steps
 
 - Remote publication requires explicit approval for GitHub credential use and pushes.
+
+
+## Session 3: Complete custom API-key quota scripts on Sub2API v0.2.19
+<!-- trellis-session: v=2 fp=8e7962fca85d56c5 -->
+
+**Date**: 2026-10-29
+**Task**: Complete custom API-key quota scripts on Sub2API v0.2.19
+**Branch**: `feat/apikey-quota-scripts`
+
+### Summary
+
+Add custom quota scripts, inline draft tests, native reset tooltips, and account expiry synchronization. Fix cache invalidation after API-key changes. Update both plugins and delivery to v0.2.19. The default combined build and complete review passed. Recover the archive commit after Trellis referenced an untracked source path.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `2212b3b` | feat(quota): integrate custom scripts on Sub2API v0.2.19 |
+
+### Status
+
+[OK] **Completed**
