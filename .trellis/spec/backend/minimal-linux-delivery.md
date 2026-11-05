@@ -104,15 +104,19 @@ Use verified current stable tools and exact release tags for official Actions, s
 Do not use commit hashes or major-only tags. Keep build permissions at `contents: read`; only enabled Release publication gets `contents: write`.
 Disable checkout credential persistence. Workflows need no personal token or repository secret.
 Use the same selected platform output pairs in every repository, without repository-name inference or compatibility aliases.
-Upload each executable directly with `archive: false`. Do not create tar files or another product archive.
-This mode ignores `name` and derives the artifact name from the file's basename.
+Use one `actions/github-script@v9.0.0` upload step in each workflow.
+Install `@actions/artifact@6.3.1` under a unique `RUNNER_TEMP` directory in that step and import its ESM entry.
+Pass the source stage's actual tag and platform list through `UPSTREAM_TAG` and `SUB2API_BUILD_PLATFORMS`.
+For each selected server and installer, await `DefaultArtifactClient.uploadArtifact(name, [file], directory, {skipArchive: true})`.
+The SDK uses each file's basename as its artifact name. Keep each download raw without tar or ZIP packaging.
+Use runner artifact credentials inside the JavaScript action. Do not export them or add secrets or repository write permissions.
 Publish two direct files per selected platform, ten by default. Unix downloads need `chmod +x` before execution.
 Keep executable outputs under `dist/build/<os>-<arch>/`. Do not retain duplicate legacy output copies.
 Stage the complete new output set on the destination filesystem before publication.
 Swap directories through rename. If publication fails, restore the old directory at its original path.
 Do not copy partial new outputs into the live directory or nest the old directory during restoration.
 Run build commands directly and retain their exit status. Patch/test failures fail the job and prevent product upload.
-The builder assembles expected selected outputs once. Native upload Actions use `if-no-files-found: error`.
+The builder assembles expected selected outputs once. SDK installation, import, missing-file, and upload errors fail the upload step.
 Do not add a separate workflow output-validation loop, repeat the builder checks, or check executable access immediately after chmod.
 Treat output paths as data in shell messages. Do not evaluate them through command substitution.
 Use native Actions step logs, annotations, and workflow status for build and upload failures.
@@ -143,7 +147,7 @@ Compile selected installers sequentially from their native and matching Linux pr
 Keep all source, programs, and installer resources in the same job workspace. Do not upload intermediate or diagnostic artifacts.
 Publish selected final pairs only after the complete build succeeds. Unselected support payloads are not final products.
 Only the optional Release job downloads final executable artifacts. Restore executable access without another bit assertion.
-Use exact official tags: cache restore/save `v6.1.0`, download-artifact `v8.0.2`, and upload-artifact `v7.0.2`.
+Use exact official tags: cache restore/save `v6.1.0`, download-artifact `v8.0.2`, and github-script `v9.0.0`.
 Cache paths come from `go env GOMODCACHE`, `go env GOCACHE`, and the selected pnpm's `store path --silent`.
 Restore each cache once. Save each through one build-job owner after successful work, using the restore step's primary key.
 Keys identify the runner, toolchain, actual dependency files, and builder dependency pins. Compilation keys also identify the source revision.
@@ -251,7 +255,8 @@ Data-only backups do not include that runtime program.
 | Blank, nonnumeric, or out-of-range selection | Repeat the selection prompt without a default |
 | Source preparation, dependency, patch, or test failure | Stop later build work and preserve previous outputs |
 | A production patch cannot apply | Stop with the Git error before compilation |
-| Expected upload file is absent | Native upload Action fails; do not repeat that check in a workflow loop |
+| SDK setup fails or an expected upload file is absent | Fail the upload step through its native exception |
+| An SDK upload fails | Fail the step and build; do not continue to later files |
 | Empty manual platform selection | Reject before source preparation |
 | Dependency cache misses | Install dependencies and build normally; do not skip checks |
 | Existing Release tag identifies another commit | Fail publication without moving the tag |
@@ -279,6 +284,7 @@ Base: a container recreated from its original image needs the same package reapp
 Bad: compile upstream sources or require nc/buildx/helper images on the user's host.
 Good: a Darwin/arm64-only CI build embeds Linux/arm64 while publishing only the selected Darwin pair.
 Bad: repeat shared tests per target or publish support payloads as unselected products.
+Good: one upload step publishes separate raw server and installer artifacts with their existing basenames.
 
 ## 6. Tests Required
 
@@ -319,6 +325,8 @@ Reuse passed evidence when inputs and affected behavior remain unchanged.
 Extend the existing composition fixture for standalone roots, empty-template exclusion, and once-per-build common tests.
 Adapt those same builder cases for source/resume, selected targets and Linux payload closure, and failed publication preserving previous outputs.
 Inspect workflow conditions and Release CLI arguments directly. Do not add workflow-text suites or deliberate failing Release runs.
+For the SDK upload integration, inspect paths and failure propagation. Check YAML, copy alignment, and temporary SDK loading once.
+Add no upload test files, unchanged product rebuild, or hosted-run acceptance gate.
 Capture expected failure output inside the existing failure-propagation fixture. Reveal it when an assertion unexpectedly fails.
 Keep real child-process failure details visible. Do not suppress output globally.
 Extend the existing Docker-helper case for single error output. Do not repeat installer transaction scenarios or mirror progress strings.
@@ -329,5 +337,5 @@ No fixed test count, v0.2.17 comparison build, retained container, manual browse
 
 Wrong: report a restored executable before checking the restarted application.
 Correct: complete readiness checks before reporting successful restoration.
-Wrong: duplicate native Action missing-file checks and test executable access immediately after chmod.
-Correct: assemble expected outputs once, restore permissions, and use native Action/job failures.
+Wrong: add another file-validation loop before SDK uploads or test executable access immediately after chmod.
+Correct: assemble expected outputs once, restore permissions, and propagate native SDK/job failures.
