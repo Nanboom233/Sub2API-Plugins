@@ -126,16 +126,24 @@ Treat output paths as data in shell messages. Do not evaluate them through comma
 Use native Actions step logs, annotations, and workflow status for build and upload failures.
 Do not add custom summaries, duplicate log artifacts, or file-capture pipelines.
 Optional manual Release publication reuses the exact successful selected products. PR and Release-disabled manual runs remain artifact-only.
-Place `Save caches` after SDK artifact upload and before `Create Release` in the same job.
+Place `Save caches` after SDK artifact upload and before `Publish Release` in the same job.
 Release failure must not suppress saving successful build caches.
 Use `if: github.event_name == 'workflow_dispatch' && inputs.release` with normal success handling.
 Read the actual tag, source commit, and selected platforms from `steps.source.outputs`.
 Pass its `tag` output as `UPSTREAM_TAG` and use that value directly in the Release command.
 Pass only the current job's selected executable pairs. Do not add a duplicate tag variable.
 Use their existing `dist/build/<os>-<arch>/` paths. Do not add an artifact download or a separate Release job.
-Use the built-in job token and `gh release create --generate-notes`, with no custom notes or notes file.
+Use the built-in job token. Query Release existence and old asset names with one `gh release view` call.
+Use `--json assets --jq '.assets[].name'` and capture its output.
+When absent, use `gh release create` with selected assets, `--target`, the title, and `--generate-notes`.
+Keep the CLI's native create-with-assets path, which stages assets before publishing the new Release.
+When present, call `gh api 'repos/{owner}/{repo}/releases/generate-notes'` with string fields `tag_name` and `target_commitish`.
+Use its `.body` output in `gh release edit --notes`, with the current title.
+Delete every old asset with `gh release delete-asset --yes` before uploading any new file.
+Skip deletion for an empty asset list. Quote each asset name read with `IFS= read -r`.
+Then use `gh release upload "$UPSTREAM_TAG" "${assets[@]}"` for this build's selected files.
+Keep the Release object and tag. Native deletion/upload failures fail the step, with no automatic restoration of deleted assets.
 Titles use `Sub2API-Plugin <first-seven-commit-characters> (v<canonical-upstream-version>)`, with exactly one leading `v`.
-Use native `gh release create` behavior for existing tags and Releases.
 Do not add Git reference lookups, annotated-tag traversal, or a tag-to-build-commit equality check before publication.
 Do not publish container images, checksum manifests, or build-info manifests.
 
@@ -283,7 +291,7 @@ Data-only backups do not include that runtime program.
 | An SDK upload fails | Fail the step and build; do not continue to later files |
 | Empty manual platform selection | Reject before source preparation |
 | Dependency cache misses | Install dependencies and build normally; do not skip checks |
-| Release creation or asset upload fails | Report native CLI failure and retain successful Actions artifacts |
+| Release creation, notes generation, metadata update, asset deletion, or upload fails | Fail publication and retain successful Actions artifacts |
 | CI build step fails | Fail the job, retain native step diagnostics, and prevent product uploads |
 | Automatic upstream release lookup fails | Report the lookup failure and preserve previous outputs |
 | Mismatched or unresolved version | Warn once and request explicit confirmation |
@@ -308,6 +316,7 @@ Bad: compile upstream sources or require nc/buildx/helper images on the user's h
 Good: a Darwin/arm64-only CI build embeds Linux/arm64 while publishing only the selected Darwin pair.
 Bad: repeat shared tests per target or publish support payloads as unselected products.
 Good: one upload step publishes separate raw server and installer artifacts with their existing basenames.
+Good: repeated same-tag publication updates metadata, deletes all old assets, then uploads only this build's selected files.
 Good: one cache load uses declared effective tool paths, and a disabled Release skips only its publication step.
 Bad: claim that a step condition restricts job-wide token permissions.
 
