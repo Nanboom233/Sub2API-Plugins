@@ -8,6 +8,7 @@ Builds discover plugin submodules automatically.
 The common build downloads upstream source. Plugins own production patches, business tests, and their licenses.
 Each plugin and the template carry a complete standalone build kit. Local builds and CI both run `python3 scripts/build.py`.
 Combined builds skip empty patch sets and run common build/installer tests once.
+CI restores dependency caches, compiles selected targets through matrices, and optionally publishes exact built files as GitHub Releases.
 All test cases and support code live in flat `tests/`. `assets/` contains data resources only.
 Each platform has a self-contained Go installer for Docker/Compose, native programs, and supported Apple container installations.
 The installer uses dynamic terminal interaction where supported, plain numbered prompts otherwise, and automatic Chinese/English terminal locale.
@@ -58,7 +59,7 @@ Reuse completed baseline and unchanged integration evidence.
 Add focused checks only for changed behavior lacking coverage.
 Format changed Go files and check affected scripts/resources.
 Do not run retired universal helpers, full root suites or a repeated pristine baseline for this task.
-No race, coverage, architecture matrix, v0.2.17 comparison build, or manual Docker or browser gate is required.
+No race, coverage, runtime architecture matrix, v0.2.17 comparison build, or manual Docker or browser gate is required.
 Report actual results and any visual or hardware execution limits.
 Keep task/fixture logs outside the user package.
 

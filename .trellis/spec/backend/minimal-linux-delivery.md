@@ -33,6 +33,8 @@ Each plugin and the template also carry a complete build kit.
 Run `python3 scripts/build.py` in that checkout for a standalone build. It needs no parent checkout or manual source preparation.
 Both local builds and CI use this command. There is no CI adapter or external build Action.
 Actions exposes a required string input named `upstream_tag` for manual runs, with default `v0.2.19`. The user can replace it before the run starts.
+Manual runs also expose five platform booleans, all true: `linux_amd64`, `linux_arm64`, `darwin_amd64`, `darwin_arm64`, and `windows_amd64`.
+The `release` boolean defaults false. A manual release requires `release_tag`; a pushed `v*` tag supplies its own release tag.
 Pass the requested value through `UPSTREAM_TAG` in the process environment. Do not interpolate user input into shell commands.
 Local builds use the same entry and environment input, for example `UPSTREAM_TAG=v0.2.19 python3 scripts/build.py`.
 Push and pull-request builds resolve the latest official release through the public upstream release API.
@@ -67,7 +69,7 @@ The vendor patch uses a Git binary hunk to preserve `texmath.js` CRLF bytes.
 There is no source overlay. Production patches contain no tests or test-only data.
 Every build executes discovered plugin tests against the combined source. The runner supplies temporary native package context.
 Preserve existing local source and plugin checkouts. Clean temporary workspaces on success and failure.
-Prepare source, dependencies, and the frontend once. Run host tests once, then compile the five supported targets.
+Prepare source, dependencies, and the frontend once. Run host tests once and compile the selected targets, all five by default.
 Use CGO disabled and the native `embed` tag. Add `.exe` to Windows programs.
 The v0.2.19 source retains `0.2.18` in `backend/cmd/server/VERSION`.
 Resolve the actual selected tag once. Remove only its leading `v` for canonical server and installer version metadata.
@@ -96,24 +98,55 @@ The parent's own build/installer code retains its MIT license. All complete kits
 
 Each repository has `.github/workflows/build.yml` for push, pull request, and manual builds on `ubuntu-latest`.
 Use verified current stable tools and exact release tags for official Actions, such as `@v7.0.1`.
-Do not use commit hashes or major-only tags. Keep job permissions at `contents: read`.
+Do not use commit hashes or major-only tags. Keep build permissions at `contents: read`; only enabled Release publication gets `contents: write`.
 Disable checkout credential persistence. Workflows need no personal token or repository secret.
-Use the same five platform output pairs in every repository, without repository-name inference or compatibility aliases.
+Use the same selected platform output pairs in every repository, without repository-name inference or compatibility aliases.
 Upload each executable directly with `archive: false`. Do not create tar files or another product archive.
 This mode ignores `name` and derives the artifact name from the file's basename.
-Five platform pairs produce ten direct product artifacts. Unix downloads need `chmod +x` before execution.
+Publish two direct files per selected platform, ten by default. Unix downloads need `chmod +x` before execution.
 Keep executable outputs under `dist/build/<os>-<arch>/`. Do not retain duplicate legacy output copies.
 Stage the complete new output set on the destination filesystem before publication.
 Swap directories through rename. If publication fails, restore the old directory at its original path.
 Do not copy partial new outputs into the live directory or nest the old directory during restoration.
 Preserve shell failures with `pipefail` while capturing logs. Patch/test failures fail the job and prevent product upload.
-Before upload, reject missing, empty, or non-executable outputs with an error annotation and an explicit job-summary message.
+The builder assembles expected selected outputs once. Native upload Actions use `if-no-files-found: error`.
+Do not add a separate workflow output-validation loop, repeat the builder checks, or check executable access immediately after chmod.
 Treat output paths as data in shell messages. Do not evaluate them through command substitution.
 Report results in the job summary. Upload available build logs as diagnostics only when the build step fails.
 Keep summaries to status, failed step, and available diagnostic locations. Do not copy build-log bodies or tails into summaries.
 Link a diagnostic artifact only after its upload succeeds. Otherwise, direct the reader to the native step log.
-Output validation and upload failures retain their own step errors. Do not present a successful build log as their failure detail.
-No automatic Release, container image, checksum manifest, or build-info manifest is part of this delivery.
+Upload failures retain their native step errors. Do not aggregate successful upload statuses or attach successful build logs as failure diagnostics.
+Optional Release publication reuses the exact successful selected products. Ordinary branch and PR runs remain artifact-only.
+Use the built-in job token and `gh release create --generate-notes`, with no custom notes or notes file.
+Titles use `Sub2API-Plugin <first-seven-commit-characters> (v<canonical-upstream-version>)`, with exactly one leading `v`.
+An existing release tag, including an annotated tag, must resolve to the built source commit. Do not move tags or overwrite Releases/assets.
+Do not publish container images, checksum manifests, or build-info manifests.
+
+### Staged CI and dependency caches
+
+Local `python3 scripts/build.py` without stage inputs retains the complete build and atomic publication.
+CI uses the same entry with `SUB2API_BUILD_STAGE=source|prepare|server|installer|publish` and `SUB2API_BUILD_WORKSPACE=dist/work`.
+`SUB2API_BUILD_PLATFORMS` selects final platforms. `SUB2API_BUILD_TARGET` selects one server or installer matrix target.
+The platform list contains whitespace-separated `os-arch` names. Unset means all platforms. An empty or unsupported list fails before source work.
+Source outputs include `tag`, `pnpm`, `platforms`, `server_count`, `server_matrix`, and `installer_matrix`.
+The workflow also records `source_sha` from the checked-out build commit.
+`server_matrix` has shape `{"target":["linux-arm64"]}`. `installer_matrix` has shape `{"include":[{"target":"darwin-arm64","linux":"linux-arm64"}]}`.
+The source stage resolves the upstream tag once, downloads source, applies patches, and exports normal Actions outputs.
+Restore caches after source exists so workspace-relative lockfile expressions identify actual dependencies.
+Prepare owns frontend compilation, plugin tests, vet, installer dependency/license assembly, and common tests once per workflow.
+Prepare compiles Linux/amd64 for common installer tests on Ubuntu amd64. Local builds retain the current host architecture's Linux test payload.
+The server matrix compiles selected native targets and required Linux container payloads, excluding programs already compiled during prepare.
+The installer matrix contains selected final platforms only. Each job receives its native program and required Linux program.
+Use standard internal Actions artifacts for current-run handoffs, excluding node_modules, Git metadata, and duplicate payload directories.
+Do not create tar files, new build entries, or output manifests. Do not use dependency caches as product transport.
+An empty server matrix is intentionally skipped. Explicit downstream status conditions allow that skip but reject actual failures or cancellation.
+Publish final products only after required preparation and matrix jobs succeed. Unselected support payloads are not final products.
+Restore executable access after artifact download. Do not add another executable-bit assertion after that operation.
+Use exact official tags: cache restore/save `v6.1.0`, download-artifact `v8.0.2`, and upload-artifact `v7.0.2`.
+Cache paths come from `go env GOMODCACHE`, `go env GOCACHE`, and the selected pnpm's `store path --silent`.
+Prepare owns module and pnpm store saves. Target/role-specific Go build keys have one successful save owner each.
+Cache identities include host/toolchain and actual dependency inputs; compilation keys also distinguish target, stage role, and source revision.
+Use standard restore prefixes and the restore step's primary key during save. Cache misses follow the normal build without skipping tests.
 
 Manual container fixtures remain optional test support under the evaluation plugin's flat `tests/native_*` paths.
 Automatic build acceptance uses the existing installer command and local HTTP fixtures. It requires no retained container or manual browser session.
@@ -215,7 +248,12 @@ Data-only backups do not include that runtime program.
 | Blank, nonnumeric, or out-of-range selection | Repeat the selection prompt without a default |
 | Source preparation, dependency, patch, or test failure | Stop later build work and preserve previous outputs |
 | A production patch cannot apply | Stop with the Git error before compilation |
-| Expected CI output is missing, empty, or non-executable | Fail validation, name the output in an annotation and summary, and skip product upload |
+| Expected upload file is absent | Native upload Action fails; do not repeat that check in a workflow loop |
+| Empty manual platform selection | Reject before source preparation |
+| No server matrix targets remain after prepare | Skip that group intentionally and continue selected installer jobs |
+| Dependency cache misses | Install dependencies and build normally; do not skip checks |
+| Existing Release tag identifies another commit | Fail publication without moving the tag |
+| Release creation or asset upload fails | Report native CLI failure and retain successful Actions artifacts |
 | CI build step fails | Fail the job and retain its available build log as diagnostics |
 | Automatic upstream release lookup fails | Report the lookup failure and preserve previous outputs |
 | Mismatched or unresolved version | Warn once and request explicit confirmation |
@@ -237,6 +275,8 @@ Data-only backups do not include that runtime program.
 Good: include every plugin with production patches in one v0.2.19 server and retain the installed executable backup.
 Base: a container recreated from its original image needs the same package reapplied.
 Bad: compile upstream sources or require nc/buildx/helper images on the user's host.
+Good: a Darwin/arm64-only CI build embeds Linux/arm64 while publishing only the selected Darwin pair.
+Bad: repeat shared tests in every matrix job or publish support payloads as unselected products.
 
 ## 6. Tests Required
 
@@ -275,6 +315,8 @@ Do not multiply parser cases by confirmation inputs or probe positions.
 Use one real v0.2.19 build for integration evidence. Do not run its test entries separately as another acceptance gate.
 Reuse passed evidence when inputs and affected behavior remain unchanged.
 Extend the existing composition fixture for standalone roots, empty-template exclusion, and once-per-build common tests.
+Extend those same builder cases for staged handoffs, selected targets and Linux payload closure, and failed publication preserving previous outputs.
+Inspect workflow conditions and Release CLI arguments directly. Do not add workflow-text suites or deliberate failing Release runs.
 Capture expected failure output inside the existing failure-propagation fixture. Reveal it when an assertion unexpectedly fails.
 Keep real child-process failure details visible. Do not suppress output globally.
 Extend the existing Docker-helper case for single error output. Do not repeat installer transaction scenarios or mirror progress strings.
@@ -285,3 +327,5 @@ No fixed test count, v0.2.17 comparison build, retained container, manual browse
 
 Wrong: report a restored executable before checking the restarted application.
 Correct: complete readiness checks before reporting successful restoration.
+Wrong: duplicate native Action missing-file checks and test executable access immediately after chmod.
+Correct: assemble expected outputs once, restore permissions, and use native Action/job failures.

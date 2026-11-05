@@ -28,11 +28,11 @@ plugins/<name>/tests/test_*.test.ts Native Vue component suites
 plugins/<name>/tests/native_*     Manual test fixture and support code
 plugins/<name>/assets/           Data resources
 plugins/<name>/scripts/          Standalone build helpers
-plugins/<name>/.github/workflows/build.yml Independent artifact build
+plugins/<name>/.github/workflows/build.yml Independent matrix build and optional Release
 plugins/<name>/LICENSE           Plugin license
 plugins/<name>/licenses/         Original third-party license files
 scripts/build.py                Automatic common build
-.github/workflows/build.yml     Combined artifact build
+.github/workflows/build.yml     Combined matrix build and optional Release
 scripts/installer/              Go installer and restoration
 tests/test_build.py             Shared build test cases
 tests/test_installer_test.go    Native installer transaction and version cases
@@ -40,6 +40,7 @@ LICENSE                         Common build and installer license
 README.md                       Chinese usage, build, and license instructions
 licenses/                       Original third-party license files
 dist/build/<os>-<arch>/          Ignored platform server and installer outputs
+dist/work/                      Ignored staged CI workspace and current-run handoffs
 .trellis/                       Workflow, specifications, tasks, and session records
 ```
 

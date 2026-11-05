@@ -43,6 +43,8 @@ Do not create another suite for retired interfaces.
 Replace obsolete version allowlist assertions with advisory-warning assertions instead of retaining both sets.
 Test shared parsing and confirmation once. Do not multiply version cases by probe positions and confirmation inputs.
 The default build already executes test entries. Do not rerun unchanged entries as a separate acceptance gate.
+CI prepare runs shared checks once. Matrix jobs compile selected programs and installers without repeating those suites.
+Use builder output assembly and native Action/job failures instead of duplicate workflow output checks or successful-upload status aggregation.
 
 Preserve native administrator authentication, account transport, cancellation, history errors, and settings storage.
 Keep tests synthetic. Do not expose credentials in fixtures, logs, or reports.
@@ -52,7 +54,7 @@ Keep generated output outside the user package and work commits.
 
 Compatibility profiles, legacy migrations, shims, and multi-version adapters are retired mechanisms.
 Gateway private keys, directed billing, activation, maintenance, and universal builders are retired mechanisms.
-Race, coverage, full-suite, architecture matrices, and source-resource parity are not current acceptance requirements.
+Race, coverage, full-suite, runtime architecture matrices, and source-resource parity are not current acceptance requirements.
 
 ## Commit and Finish Work
 
