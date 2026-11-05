@@ -1,0 +1,6 @@
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Check changed behavior without repeated suites, new gates, or unauthorized remote operations."}
+{"file":".trellis/tasks/10-31-installation-methods/research/deployment-forms.md","reason":"Limit support to the three official user-facing forms and published platforms."}
+{"file":".trellis/tasks/10-31-installation-methods/research/installation-operations.md","reason":"Verify program replacement, actual startup ownership, persistence, and recovery against official sources."}
+{"file":".trellis/tasks/10-31-installation-methods/research/platform-artifacts.md","reason":"Check that packaged payloads match application runtimes rather than only installer hosts."}
+{"file":".trellis/tasks/10-30-inspection-settings-attribution/research/output-conventions.md","reason":"Keep dynamic rendering out of plain logs and report each error once without duplicating transaction checks by language."}
+{"file":".trellis/tasks/10-31-installation-methods/research/terminal-ui.md","reason":"Verify dynamic/plain routing, interrupt cleanup, spinner stopping, locale priority, and single-owner diagnostics against selected component sources."}

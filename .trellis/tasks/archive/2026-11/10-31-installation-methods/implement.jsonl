@@ -1,0 +1,6 @@
+{"file":".trellis/spec/backend/minimal-linux-delivery.md","reason":"Preserve current warning, Docker transaction, build, output, and failure contracts except for approved platform layout changes."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Use flat existing tests, default build checks, and existing commit and credential approval boundaries."}
+{"file":".trellis/tasks/10-31-installation-methods/research/installation-operations.md","reason":"Official executable paths, startup owners, update limitations, and Apple persistent runtime behavior."}
+{"file":".trellis/tasks/10-31-installation-methods/research/platform-artifacts.md","reason":"Installer-host versus application-runtime targets and current portability obstacles."}
+{"file":".trellis/tasks/10-30-inspection-settings-attribution/research/output-conventions.md","reason":"Preserve single-owner errors, concise logs, and native streams while adding terminal presentation and Chinese/English localization."}
+{"file":".trellis/tasks/10-31-installation-methods/research/terminal-ui.md","reason":"Selected PTerm version, inline APIs, real-terminal gating, cancellation return path, locale resolution, and original license provenance."}
