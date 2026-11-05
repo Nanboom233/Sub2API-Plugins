@@ -28,6 +28,8 @@ Use plugin `tests/test_ui.cjs` directly for existing native page assertions.
 Manual `tests/native_*` helpers belong to the evaluation plugin and stay outside automatic `test_*` discovery.
 Use [the native installer tests](../../../tests/test_installer_test.go) for shared transactions and changed native/Apple control paths.
 Run them in the temporary host-platform installer module. Keep cross-compilation flags separate from host tests.
+The fake-Docker `writeState` helper must write, close, and rename a unique temporary file beside `state.json`.
+Readers must see complete JSON even when a timeout kills the writer. Keep malformed-state failures visible in `readState`.
 Native Go suites use flat `test_*_test.go` files and `// sub2api-package:` annotations for temporary package placement.
 Execute each discovered Go case once with native `go test`. Preserve standalone Go program support and direct Python/CJS execution.
 Native Vue cases use flat `tests/test_*.test.ts` suites and the downloaded frontend's existing Vitest runtime.
