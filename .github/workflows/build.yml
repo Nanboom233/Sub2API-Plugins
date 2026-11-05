@@ -106,27 +106,17 @@ jobs:
           node_version="$(node -p 'process.versions.node')"
           pnpm_store="$(corepack "$PNPM" store path --silent)"
           printf 'modules=%s\nbuild=%s\ngo=%s\nnode=%s\npnpm=%s\n' "$modules" "$build_cache" "$go_version" "$node_version" "$pnpm_store" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache/restore@v6.1.0
-        id: modules
+      - name: Restore dependency caches
+        uses: actions/cache/restore@v6.1.0
+        id: dependencies
         with:
-          path: ${{ steps.paths.outputs.modules }}
-          key: gomod-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-${{ hashFiles('dist/work/source/backend/go.sum', 'scripts/build.py') }}
+          path: |
+            ${{ steps.paths.outputs.modules }}
+            ${{ steps.paths.outputs.build }}
+            ${{ steps.paths.outputs.pnpm }}
+          key: dependencies-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-${{ steps.paths.outputs.node }}-${{ steps.source.outputs.pnpm }}-${{ hashFiles('dist/work/source/backend/go.mod', 'dist/work/source/backend/go.sum', 'dist/work/source/frontend/pnpm-lock.yaml', 'scripts/build.py') }}-${{ github.sha }}
           restore-keys: |
-            gomod-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-
-      - uses: actions/cache/restore@v6.1.0
-        id: go_build
-        with:
-          path: ${{ steps.paths.outputs.build }}
-          key: gobuild-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-${{ hashFiles('dist/work/source/backend/go.sum', 'scripts/build.py') }}-${{ github.sha }}
-          restore-keys: |
-            gobuild-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-${{ hashFiles('dist/work/source/backend/go.sum', 'scripts/build.py') }}-
-      - uses: actions/cache/restore@v6.1.0
-        id: pnpm
-        with:
-          path: ${{ steps.paths.outputs.pnpm }}
-          key: pnpm-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.node }}-${{ steps.source.outputs.pnpm }}-${{ hashFiles('dist/work/source/frontend/pnpm-lock.yaml', 'scripts/build.py') }}
-          restore-keys: |
-            pnpm-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.node }}-${{ steps.source.outputs.pnpm }}-
+            dependencies-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-${{ steps.paths.outputs.node }}-${{ steps.source.outputs.pnpm }}-${{ hashFiles('dist/work/source/backend/go.mod', 'dist/work/source/backend/go.sum', 'dist/work/source/frontend/pnpm-lock.yaml', 'scripts/build.py') }}-
       - name: Test and build selected platforms
         env:
           SUB2API_BUILD_STAGE: resume
@@ -160,21 +150,15 @@ jobs:
                 await client.uploadArtifact(name, [path.join(directory, name)], directory, {skipArchive: true});
               }
             }
-      - uses: actions/cache/save@v6.1.0
-        if: ${{ steps.modules.outputs.cache-hit != 'true' }}
+      - name: Save dependency caches
+        uses: actions/cache/save@v6.1.0
+        if: ${{ steps.dependencies.outputs.cache-hit != 'true' }}
         with:
-          path: ${{ steps.paths.outputs.modules }}
-          key: ${{ steps.modules.outputs.cache-primary-key }}
-      - uses: actions/cache/save@v6.1.0
-        if: ${{ steps.go_build.outputs.cache-hit != 'true' }}
-        with:
-          path: ${{ steps.paths.outputs.build }}
-          key: ${{ steps.go_build.outputs.cache-primary-key }}
-      - uses: actions/cache/save@v6.1.0
-        if: ${{ steps.pnpm.outputs.cache-hit != 'true' }}
-        with:
-          path: ${{ steps.paths.outputs.pnpm }}
-          key: ${{ steps.pnpm.outputs.cache-primary-key }}
+          path: |
+            ${{ steps.paths.outputs.modules }}
+            ${{ steps.paths.outputs.build }}
+            ${{ steps.paths.outputs.pnpm }}
+          key: ${{ steps.dependencies.outputs.cache-primary-key }}
 
   release:
     needs: build

@@ -149,8 +149,11 @@ Publish selected final pairs only after the complete build succeeds. Unselected 
 Only the optional Release job downloads final executable artifacts. Restore executable access without another bit assertion.
 Use exact official tags: cache restore/save `v6.1.0`, download-artifact `v8.0.2`, and github-script `v9.0.0`.
 Cache paths come from `go env GOMODCACHE`, `go env GOCACHE`, and the selected pnpm's `store path --silent`.
-Restore each cache once. Save each through one build-job owner after successful work, using the restore step's primary key.
-Keys identify the runner, toolchain, actual dependency files, and builder dependency pins. Compilation keys also identify the source revision.
+Restore all three paths in one official cache restore step. Save the same paths in one save step after successful work.
+Use one combined key for runner OS/architecture, Go and Node versions, selected pnpm, actual dependency files, builder, and source revision.
+The dependency files are downloaded `backend/go.mod`, `backend/go.sum`, and `frontend/pnpm-lock.yaml`.
+Use a restore prefix without the source revision. Save with the restore step's primary key unless the exact cache key hit.
+All three paths share cache hit and invalidation behavior. Do not add a cache SDK wrapper or separate workflow.
 One Go compilation cache holds multiple targets. Go distinguishes target OS and architecture internally.
 Use normal restore prefixes. Cache misses retain normal installation, frozen lockfiles, tests, and compilation.
 Do not cache patched source, node_modules, final programs, or installer payloads.
