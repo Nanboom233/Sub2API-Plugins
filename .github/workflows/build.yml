@@ -1,4 +1,4 @@
-name: Build
+name: Build and Release
 run-name: ${{ github.event_name == 'workflow_dispatch' && format('Build {0} · {1}', inputs.upstream_tag, github.ref_name) || github.event.pull_request.title }}
 
 on:
@@ -50,11 +50,15 @@ env:
   COREPACK_ENABLE_PROJECT_SPEC: "0"
 
 jobs:
-  build:
+  build-release:
+    name: Build and Release
     runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.source.outputs.tag }}
-      source_sha: ${{ steps.source.outputs.source_sha }}
+    permissions:
+      contents: write
+    env:
+      GOMODCACHE: ${{ github.workspace }}/dist/cache/go-mod
+      GOCACHE: ${{ github.workspace }}/dist/cache/go-build
+      pnpm_config_store_dir: ${{ github.workspace }}/dist/cache/pnpm
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -64,10 +68,12 @@ jobs:
         with:
           python-version: "3.15.2"
       - uses: actions/setup-go@v7.0.0
+        id: go
         with:
           go-version: "1.27.3"
           cache: false
       - uses: actions/setup-node@v7.1.0
+        id: node
         with:
           node-version: "26.13.0"
       - name: Prepare Corepack
@@ -95,28 +101,17 @@ jobs:
           python3 scripts/build.py
           source_sha="$(git rev-parse HEAD)"
           printf 'source_sha=%s\n' "$source_sha" >> "$GITHUB_OUTPUT"
-      - name: Locate dependency caches
-        id: paths
-        env:
-          PNPM: ${{ steps.source.outputs.pnpm }}
-        run: |
-          modules="$(go env GOMODCACHE)"
-          build_cache="$(go env GOCACHE)"
-          go_version="$(go env GOVERSION)"
-          node_version="$(node -p 'process.versions.node')"
-          pnpm_store="$(corepack "$PNPM" store path --silent)"
-          printf 'modules=%s\nbuild=%s\ngo=%s\nnode=%s\npnpm=%s\n' "$modules" "$build_cache" "$go_version" "$node_version" "$pnpm_store" >> "$GITHUB_OUTPUT"
-      - name: Restore dependency caches
+      - name: Load caches
         uses: actions/cache/restore@v6.1.0
         id: dependencies
         with:
           path: |
-            ${{ steps.paths.outputs.modules }}
-            ${{ steps.paths.outputs.build }}
-            ${{ steps.paths.outputs.pnpm }}
-          key: dependencies-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-${{ steps.paths.outputs.node }}-${{ steps.source.outputs.pnpm }}-${{ hashFiles('dist/work/source/backend/go.mod', 'dist/work/source/backend/go.sum', 'dist/work/source/frontend/pnpm-lock.yaml', 'scripts/build.py') }}-${{ github.sha }}
+            ${{ env.GOMODCACHE }}
+            ${{ env.GOCACHE }}
+            ${{ env.pnpm_config_store_dir }}
+          key: dependencies-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-${{ steps.node.outputs.node-version }}-${{ steps.source.outputs.pnpm }}-${{ hashFiles('dist/work/source/backend/go.mod', 'dist/work/source/backend/go.sum', 'dist/work/source/frontend/pnpm-lock.yaml', 'scripts/build.py') }}-${{ github.sha }}
           restore-keys: |
-            dependencies-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-${{ steps.paths.outputs.node }}-${{ steps.source.outputs.pnpm }}-${{ hashFiles('dist/work/source/backend/go.mod', 'dist/work/source/backend/go.sum', 'dist/work/source/frontend/pnpm-lock.yaml', 'scripts/build.py') }}-
+            dependencies-${{ runner.os }}-${{ runner.arch }}-${{ steps.go.outputs.go-version }}-${{ steps.node.outputs.node-version }}-${{ steps.source.outputs.pnpm }}-${{ hashFiles('dist/work/source/backend/go.mod', 'dist/work/source/backend/go.sum', 'dist/work/source/frontend/pnpm-lock.yaml', 'scripts/build.py') }}-
       - name: Test and build selected platforms
         env:
           SUB2API_BUILD_STAGE: resume
@@ -150,35 +145,24 @@ jobs:
                 await client.uploadArtifact(name, [path.join(directory, name)], directory, {skipArchive: true});
               }
             }
-      - name: Save dependency caches
+      - name: Save caches
         uses: actions/cache/save@v6.1.0
         if: ${{ steps.dependencies.outputs.cache-hit != 'true' }}
         with:
           path: |
-            ${{ steps.paths.outputs.modules }}
-            ${{ steps.paths.outputs.build }}
-            ${{ steps.paths.outputs.pnpm }}
+            ${{ env.GOMODCACHE }}
+            ${{ env.GOCACHE }}
+            ${{ env.pnpm_config_store_dir }}
           key: ${{ steps.dependencies.outputs.cache-primary-key }}
-
-  release:
-    needs: build
-    if: ${{ !cancelled() && needs.build.result == 'success' && github.event_name == 'workflow_dispatch' && inputs.release }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    env:
-      GH_TOKEN: ${{ github.token }}
-      GH_REPO: ${{ github.repository }}
-      SOURCE_SHA: ${{ needs.build.outputs.source_sha }}
-      UPSTREAM_TAG: ${{ needs.build.outputs.tag }}
-      RELEASE_TAG: ${{ needs.build.outputs.tag }}
-    steps:
-      - uses: actions/download-artifact@v8.0.2
-        with:
-          pattern: sub2api-plugins-*
-          merge-multiple: true
-          path: dist/release
       - name: Create Release
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.release }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SOURCE_SHA: ${{ steps.source.outputs.source_sha }}
+          UPSTREAM_TAG: ${{ steps.source.outputs.tag }}
+          RELEASE_TAG: ${{ steps.source.outputs.tag }}
+          SUB2API_BUILD_PLATFORMS: ${{ steps.source.outputs.platforms }}
         run: |
           export RELEASE_REF="refs/tags/$RELEASE_TAG"
           encoded_tag="$(jq -rn --arg tag "$RELEASE_TAG" '$tag | @uri')"
@@ -194,7 +178,16 @@ jobs:
               exit 1
             fi
           fi
-          gh release create "$RELEASE_TAG" dist/release/sub2api-plugins-* \
+          assets=()
+          read -r -a platforms <<< "$SUB2API_BUILD_PLATFORMS"
+          for platform in "${platforms[@]}"; do
+            suffix=""
+            if [[ "$platform" == windows-* ]]; then suffix=.exe; fi
+            for component in '' installer-; do
+              assets+=("dist/build/$platform/sub2api-plugins-${component}${UPSTREAM_TAG}-${platform}${suffix}")
+            done
+          done
+          gh release create "$RELEASE_TAG" "${assets[@]}" \
             --target "$SOURCE_SHA" \
             --title "Sub2API-Plugin ${SOURCE_SHA:0:7} (v${UPSTREAM_TAG#v})" \
             --generate-notes

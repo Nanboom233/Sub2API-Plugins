@@ -36,7 +36,8 @@ Actions exposes a required string input named `upstream_tag` for manual runs, wi
 Manual runs also expose five platform booleans, all true: `linux_amd64`, `linux_arm64`, `darwin_amd64`, `darwin_arm64`, and `windows_amd64`.
 The `release` boolean defaults false. Manual Release publication inherits the build's actual upstream tag. There is no `release_tag` input.
 Manual run titles use `Build <upstream_tag> · <ref_name>` without a run number. PR runs use their PR title.
-Top-level `run-name` reads existing inputs and GitHub context. Keep `name: Build` and add no title input.
+Top-level `run-name` reads existing inputs and GitHub context. Add no title input.
+Name the workflow and job `Build and Release`. Use one job with ID `build-release`.
 Pass the requested value through `UPSTREAM_TAG` in the process environment. Do not interpolate user input into shell commands.
 Local builds use the same entry and environment input, for example `UPSTREAM_TAG=v0.2.19 python3 scripts/build.py`.
 Pull-request builds resolve the latest official release through the public upstream release API.
@@ -101,7 +102,9 @@ The parent's own build/installer code retains its MIT license. All complete kits
 Each repository has `.github/workflows/build.yml` for pull-request and manual builds on `ubuntu-latest`.
 Branch and tag pushes do not trigger builds. Keep the existing five platform checkboxes.
 Use verified current stable tools and exact release tags for official Actions, such as `@v7.0.1`.
-Do not use commit hashes or major-only tags. Keep build permissions at `contents: read`; only enabled Release publication gets `contents: write`.
+Do not use commit hashes or major-only tags. Keep workflow permissions at `contents: read`.
+The combined `build-release` job uses `contents: write` for Release publication.
+Permissions apply to the whole job, including runs where the Release step is skipped.
 Disable checkout credential persistence. Workflows need no personal token or repository secret.
 Use the same selected platform output pairs in every repository, without repository-name inference or compatibility aliases.
 Use one `actions/github-script@v9.0.0` upload step in each workflow.
@@ -109,7 +112,8 @@ Install `@actions/artifact@6.3.1` under a unique `RUNNER_TEMP` directory in that
 Pass the source stage's actual tag and platform list through `UPSTREAM_TAG` and `SUB2API_BUILD_PLATFORMS`.
 For each selected server and installer, await `DefaultArtifactClient.uploadArtifact(name, [file], directory, {skipArchive: true})`.
 The SDK uses each file's basename as its artifact name. Keep each download raw without tar or ZIP packaging.
-Use runner artifact credentials inside the JavaScript action. Do not export them or add secrets or repository write permissions.
+Use runner artifact credentials inside the JavaScript action. Do not export them or add secrets.
+Artifact upload itself needs no repository write permission.
 Publish two direct files per selected platform, ten by default. Unix downloads need `chmod +x` before execution.
 Keep executable outputs under `dist/build/<os>-<arch>/`. Do not retain duplicate legacy output copies.
 Stage the complete new output set on the destination filesystem before publication.
@@ -122,7 +126,12 @@ Treat output paths as data in shell messages. Do not evaluate them through comma
 Use native Actions step logs, annotations, and workflow status for build and upload failures.
 Do not add custom summaries, duplicate log artifacts, or file-capture pipelines.
 Optional manual Release publication reuses the exact successful selected products. PR and Release-disabled manual runs remain artifact-only.
-Set `RELEASE_TAG` from `needs.build.outputs.tag`, the actual upstream tag used for source and artifact names.
+Place `Save caches` after SDK artifact upload and before `Create Release` in the same job.
+Release failure must not suppress saving successful build caches.
+Use `if: github.event_name == 'workflow_dispatch' && inputs.release` with normal success handling.
+Read the actual tag, source commit, and selected platforms from `steps.source.outputs`.
+Set `RELEASE_TAG` from its `tag` output. Pass only the current job's selected executable pairs to the Release command.
+Use their existing `dist/build/<os>-<arch>/` paths. Do not add an artifact download or a separate Release job.
 Use the built-in job token and `gh release create --generate-notes`, with no custom notes or notes file.
 Titles use `Sub2API-Plugin <first-seven-commit-characters> (v<canonical-upstream-version>)`, with exactly one leading `v`.
 An existing release tag, including an annotated tag, must resolve to the built source commit. Do not move tags or overwrite Releases/assets.
@@ -146,10 +155,20 @@ Compile remaining selected native programs and matching Linux container payloads
 Compile selected installers sequentially from their native and matching Linux programs. Each Go invocation retains native package parallelism.
 Keep all source, programs, and installer resources in the same job workspace. Do not upload intermediate or diagnostic artifacts.
 Publish selected final pairs only after the complete build succeeds. Unselected support payloads are not final products.
-Only the optional Release job downloads final executable artifacts. Restore executable access without another bit assertion.
-Use exact official tags: cache restore/save `v6.1.0`, download-artifact `v8.0.2`, and github-script `v9.0.0`.
-Cache paths come from `go env GOMODCACHE`, `go env GOCACHE`, and the selected pnpm's `store path --silent`.
-Restore all three paths in one official cache restore step. Save the same paths in one save step after successful work.
+Use exact official tags: cache restore/save `v6.1.0` and github-script `v9.0.0`.
+Declare effective cache paths in the job environment:
+
+```yaml
+GOMODCACHE: ${{ github.workspace }}/dist/cache/go-mod
+GOCACHE: ${{ github.workspace }}/dist/cache/go-build
+pnpm_config_store_dir: ${{ github.workspace }}/dist/cache/pnpm
+```
+
+The existing builder inherits these variables. Cache pnpm's configured parent directory, including its tool-managed versioned children.
+pnpm 12 ignores `npm_config_store_dir`. Use `pnpm_config_store_dir` and do not hardcode a store-version child.
+Use setup step IDs `go` and `node` with outputs `go-version` and `node-version`.
+Use the source step's `pnpm` output for the package-manager version. Do not add a separate cache-path discovery step.
+Restore all three paths in one `Load caches` step. Save the same paths in one `Save caches` step after successful work.
 Use one combined key for runner OS/architecture, Go and Node versions, selected pnpm, actual dependency files, builder, and source revision.
 The dependency files are downloaded `backend/go.mod`, `backend/go.sum`, and `frontend/pnpm-lock.yaml`.
 Use a restore prefix without the source revision. Save with the restore step's primary key unless the exact cache key hit.
@@ -288,6 +307,8 @@ Bad: compile upstream sources or require nc/buildx/helper images on the user's h
 Good: a Darwin/arm64-only CI build embeds Linux/arm64 while publishing only the selected Darwin pair.
 Bad: repeat shared tests per target or publish support payloads as unselected products.
 Good: one upload step publishes separate raw server and installer artifacts with their existing basenames.
+Good: one cache load uses declared effective tool paths, and a disabled Release skips only its publication step.
+Bad: claim that a step condition restricts job-wide token permissions.
 
 ## 6. Tests Required
 
@@ -330,6 +351,8 @@ Adapt those same builder cases for source/resume, selected targets and Linux pay
 Inspect workflow conditions and Release CLI arguments directly. Do not add workflow-text suites or deliberate failing Release runs.
 For the SDK upload integration, inspect paths and failure propagation. Check YAML, copy alignment, and temporary SDK loading once.
 Add no upload test files, unchanged product rebuild, or hosted-run acceptance gate.
+For workflow-only cache and Release changes, check YAML, shell syntax, output wiring, and aligned copies.
+Reuse the completed path probes and SDK checks. Add no cache benchmark, repeated version probe, or test Release.
 Capture expected failure output inside the existing failure-propagation fixture. Reveal it when an assertion unexpectedly fails.
 Keep real child-process failure details visible. Do not suppress output globally.
 Extend the existing Docker-helper case for single error output. Do not repeat installer transaction scenarios or mirror progress strings.
@@ -342,3 +365,5 @@ Wrong: report a restored executable before checking the restarted application.
 Correct: complete readiness checks before reporting successful restoration.
 Wrong: add another file-validation loop before SDK uploads or test executable access immediately after chmod.
 Correct: assemble expected outputs once, restore permissions, and propagate native SDK/job failures.
+Wrong: add a cache-location step or download artifacts again for same-job Release publication.
+Correct: declare tool cache paths and publish the selected files already present in the build job.
