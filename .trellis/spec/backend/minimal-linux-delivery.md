@@ -130,11 +130,13 @@ Place `Save caches` after SDK artifact upload and before `Create Release` in the
 Release failure must not suppress saving successful build caches.
 Use `if: github.event_name == 'workflow_dispatch' && inputs.release` with normal success handling.
 Read the actual tag, source commit, and selected platforms from `steps.source.outputs`.
-Set `RELEASE_TAG` from its `tag` output. Pass only the current job's selected executable pairs to the Release command.
+Pass its `tag` output as `UPSTREAM_TAG` and use that value directly in the Release command.
+Pass only the current job's selected executable pairs. Do not add a duplicate tag variable.
 Use their existing `dist/build/<os>-<arch>/` paths. Do not add an artifact download or a separate Release job.
 Use the built-in job token and `gh release create --generate-notes`, with no custom notes or notes file.
 Titles use `Sub2API-Plugin <first-seven-commit-characters> (v<canonical-upstream-version>)`, with exactly one leading `v`.
-An existing release tag, including an annotated tag, must resolve to the built source commit. Do not move tags or overwrite Releases/assets.
+Use native `gh release create` behavior for existing tags and Releases.
+Do not add Git reference lookups, annotated-tag traversal, or a tag-to-build-commit equality check before publication.
 Do not publish container images, checksum manifests, or build-info manifests.
 
 ### Single build job and dependency caches
@@ -281,7 +283,6 @@ Data-only backups do not include that runtime program.
 | An SDK upload fails | Fail the step and build; do not continue to later files |
 | Empty manual platform selection | Reject before source preparation |
 | Dependency cache misses | Install dependencies and build normally; do not skip checks |
-| Existing Release tag identifies another commit | Fail publication without moving the tag |
 | Release creation or asset upload fails | Report native CLI failure and retain successful Actions artifacts |
 | CI build step fails | Fail the job, retain native step diagnostics, and prevent product uploads |
 | Automatic upstream release lookup fails | Report the lookup failure and preserve previous outputs |

@@ -158,26 +158,10 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.release }}
         env:
           GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
           SOURCE_SHA: ${{ steps.source.outputs.source_sha }}
           UPSTREAM_TAG: ${{ steps.source.outputs.tag }}
-          RELEASE_TAG: ${{ steps.source.outputs.tag }}
           SUB2API_BUILD_PLATFORMS: ${{ steps.source.outputs.platforms }}
         run: |
-          export RELEASE_REF="refs/tags/$RELEASE_TAG"
-          encoded_tag="$(jq -rn --arg tag "$RELEASE_TAG" '$tag | @uri')"
-          reference="$(gh api "repos/$GH_REPO/git/matching-refs/tags/$encoded_tag" --jq '.[] | select(.ref == env.RELEASE_REF) | [.object.type, .object.sha] | @tsv')"
-          if [[ -n "$reference" ]]; then
-            read -r type commit <<< "$reference"
-            while [[ "$type" == tag ]]; do
-              reference="$(gh api "repos/$GH_REPO/git/tags/$commit" --jq '[.object.type, .object.sha] | @tsv')"
-              read -r type commit <<< "$reference"
-            done
-            if [[ "$type" != commit || "$commit" != "$SOURCE_SHA" ]]; then
-              echo "::error::The Release tag does not identify the built source commit."
-              exit 1
-            fi
-          fi
           assets=()
           read -r -a platforms <<< "$SUB2API_BUILD_PLATFORMS"
           for platform in "${platforms[@]}"; do
@@ -187,7 +171,7 @@ jobs:
               assets+=("dist/build/$platform/sub2api-plugins-${component}${UPSTREAM_TAG}-${platform}${suffix}")
             done
           done
-          gh release create "$RELEASE_TAG" "${assets[@]}" \
+          gh release create "$UPSTREAM_TAG" "${assets[@]}" \
             --target "$SOURCE_SHA" \
             --title "Sub2API-Plugin ${SOURCE_SHA:0:7} (v${UPSTREAM_TAG#v})" \
             --generate-notes
