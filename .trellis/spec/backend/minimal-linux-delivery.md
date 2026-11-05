@@ -34,10 +34,10 @@ Run `python3 scripts/build.py` in that checkout for a standalone build. It needs
 Both local builds and CI use this command. There is no CI adapter or external build Action.
 Actions exposes a required string input named `upstream_tag` for manual runs, with default `v0.2.19`. The user can replace it before the run starts.
 Manual runs also expose five platform booleans, all true: `linux_amd64`, `linux_arm64`, `darwin_amd64`, `darwin_arm64`, and `windows_amd64`.
-The `release` boolean defaults false. A manual release requires `release_tag`; a pushed `v*` tag supplies its own release tag.
+The `release` boolean defaults false. Manual Release publication inherits the build's actual upstream tag. There is no `release_tag` input.
 Pass the requested value through `UPSTREAM_TAG` in the process environment. Do not interpolate user input into shell commands.
 Local builds use the same entry and environment input, for example `UPSTREAM_TAG=v0.2.19 python3 scripts/build.py`.
-Push and pull-request builds resolve the latest official release through the public upstream release API.
+Pull-request builds resolve the latest official release through the public upstream release API.
 Local builds without `UPSTREAM_TAG` use the same resolver. Resolve once before source preparation and reuse the resulting actual `tag_name`.
 Use no user credentials for this public lookup. Query failure or an unusable response fails the build without a version fallback.
 
@@ -96,7 +96,8 @@ Keep installation, manual rollback, and history instructions in `README.md`. The
 Eval and quota patch adaptations and the template use `LGPL-3.0-or-later` while retaining inherited MIT and dependency notices.
 The parent's own build/installer code retains its MIT license. All complete kits carry the upstream GPL and LGPL texts.
 
-Each repository has `.github/workflows/build.yml` for push, pull request, and manual builds on `ubuntu-latest`.
+Each repository has `.github/workflows/build.yml` for pull-request and manual builds on `ubuntu-latest`.
+Branch and tag pushes do not trigger builds. Keep the existing five platform checkboxes.
 Use verified current stable tools and exact release tags for official Actions, such as `@v7.0.1`.
 Do not use commit hashes or major-only tags. Keep build permissions at `contents: read`; only enabled Release publication gets `contents: write`.
 Disable checkout credential persistence. Workflows need no personal token or repository secret.
@@ -114,7 +115,8 @@ Do not add a separate workflow output-validation loop, repeat the builder checks
 Treat output paths as data in shell messages. Do not evaluate them through command substitution.
 Use native Actions step logs, annotations, and workflow status for build and upload failures.
 Do not add custom summaries, duplicate log artifacts, or file-capture pipelines.
-Optional Release publication reuses the exact successful selected products. Ordinary branch and PR runs remain artifact-only.
+Optional manual Release publication reuses the exact successful selected products. PR and Release-disabled manual runs remain artifact-only.
+Set `RELEASE_TAG` from `needs.build.outputs.tag`, the actual upstream tag used for source and artifact names.
 Use the built-in job token and `gh release create --generate-notes`, with no custom notes or notes file.
 Titles use `Sub2API-Plugin <first-seven-commit-characters> (v<canonical-upstream-version>)`, with exactly one leading `v`.
 An existing release tag, including an annotated tag, must resolve to the built source commit. Do not move tags or overwrite Releases/assets.
