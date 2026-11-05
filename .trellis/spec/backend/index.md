@@ -8,7 +8,8 @@ Builds discover plugin submodules automatically.
 The common build downloads upstream source. Plugins own production patches, business tests, and their licenses.
 Each plugin and the template carry a complete standalone build kit. Local builds and CI both run `python3 scripts/build.py`.
 Combined builds skip empty patch sets and run common build/installer tests once.
-CI restores dependency caches, compiles selected targets through matrices, and optionally publishes exact built files as GitHub Releases.
+One CI build job restores dependency caches, compiles selected targets sequentially, and uploads only final executable pairs.
+An optional Release job reuses those final artifacts. Errors stay in native Actions logs.
 All test cases and support code live in flat `tests/`. `assets/` contains data resources only.
 Each platform has a self-contained Go installer for Docker/Compose, native programs, and supported Apple container installations.
 The installer uses dynamic terminal interaction where supported, plain numbered prompts otherwise, and automatic Chinese/English terminal locale.

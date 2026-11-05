@@ -190,23 +190,9 @@ class BuildTests(unittest.TestCase):
             with patch.object(build, "run", self.runner(seed, calls)), patch.object(build.platform, "machine", return_value="x86_64"), patch.dict(build.os.environ, {"GITHUB_OUTPUT": str(directory / "outputs")}):
                 build.run_stage(root, workspace, "source", tag, selected)
                 outputs = dict(line.split("=", 1) for line in (directory / "outputs").read_text().splitlines())
-                self.assertEqual(json.loads(outputs["server_matrix"]), {"target": ["darwin-arm64", "linux-arm64"]})
-                self.assertEqual(json.loads(outputs["installer_matrix"])["include"][0]["target"], "darwin-arm64")
-                build.run_stage(root, workspace, "prepare", tag, selected)
+                self.assertEqual(outputs, {"tag": tag, "pnpm": build.PNPM, "platforms": "darwin-arm64"})
                 self.assertTrue(all(path.read_text().startswith("previous ") for path in (root / "dist/build/linux-amd64").iterdir()))
-                resumed = directory / "handoff"
-                shutil.copytree(workspace / "source/backend", resumed / "source/backend")
-                shutil.copytree(workspace / "installer", resumed / "installer", ignore=shutil.ignore_patterns("payloads"))
-                shutil.copytree(workspace / "binaries", resumed / "binaries")
-                for binary in (resumed / "binaries").iterdir():
-                    binary.chmod(0o644)
-                for target in json.loads(outputs["server_matrix"])["target"]:
-                    with patch.dict(build.os.environ, {"SUB2API_BUILD_TARGET": target}):
-                        build.run_stage(root, resumed, "server", tag, selected)
-                with patch.dict(build.os.environ, {"SUB2API_BUILD_TARGET": selected[0]}):
-                    build.run_stage(root, resumed, "installer", tag, selected)
-                artifacts = build.run_stage(root, resumed, "publish", tag, selected)
-            self.assertFalse((resumed / "source/frontend").exists())
+                artifacts = build.run_stage(root, workspace, "resume", tag, selected)
             self.assertEqual([item.read_bytes() for item in artifacts], [b"built output"] * 2)
             expected = {
                 f"darwin-arm64/sub2api-plugins{'-installer' if installer else ''}-{TAG}-darwin-arm64"
@@ -269,12 +255,8 @@ class BuildTests(unittest.TestCase):
             with patch.dict(build.os.environ, {"UPSTREAM_TAG": TAG}), patch.object(build.urllib.request, "urlopen") as lookup:
                 tag = build.resolve_upstream_tag()
                 lookup.assert_not_called()
-            with patch.object(build, "run", self.runner(seed, calls)), patch.object(build.platform, "machine", return_value="x86_64"), patch.dict(build.os.environ, {"GITHUB_OUTPUT": str(directory / "outputs")}):
+            with patch.object(build, "run", self.runner(seed, calls)), patch.object(build.platform, "machine", return_value="x86_64"):
                 selected = ["linux-amd64"]
-                build.stage_outputs(tag, selected)
-                outputs = dict(line.split("=", 1) for line in (directory / "outputs").read_text().splitlines())
-                self.assertEqual(outputs["server_count"], "0")
-                self.assertEqual(json.loads(outputs["server_matrix"]), {"target": []})
                 artifacts = build.build(plugin, workspace, tag, selected)
             self.assertEqual([item.read_bytes() for item in artifacts], [b"built output"] * 2)
             self.assertEqual((root / "events").read_text().splitlines(), [

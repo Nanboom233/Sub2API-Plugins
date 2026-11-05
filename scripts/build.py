@@ -264,6 +264,10 @@ def publish(root, workspace, tag, selected):
 def build(root, workspace, tag, selected=None):
     selected = selected if selected is not None else selected_platforms()
     source(root, workspace, tag)
+    return resume(root, workspace, tag, selected)
+
+
+def resume(root, workspace, tag, selected):
     prepare(root, workspace, tag)
     for target in sorted(set(required_servers(selected)) - set(common_targets())):
         server(workspace, tag, target)
@@ -273,17 +277,10 @@ def build(root, workspace, tag, selected=None):
 
 
 def stage_outputs(tag, selected):
-    remaining = sorted(set(required_servers(selected)) - set(common_targets()))
     outputs = {
         "tag": tag,
         "pnpm": PNPM,
         "platforms": " ".join(selected),
-        "server_count": str(len(remaining)),
-        "server_matrix": json.dumps({"target": remaining}),
-        "installer_matrix": json.dumps({"include": [
-            {"target": target, "linux": "linux-" + target.split("-")[1]}
-            for target in selected
-        ]}),
     }
     if os.environ.get("GITHUB_OUTPUT"):
         with open(os.environ["GITHUB_OUTPUT"], "a") as output:
@@ -295,16 +292,8 @@ def run_stage(root, workspace, stage, tag, selected):
     if stage == "source":
         source(root, workspace, tag)
         stage_outputs(tag, selected)
-    elif stage == "prepare":
-        prepare(root, workspace, tag)
-    elif stage in ("server", "installer"):
-        target = os.environ.get("SUB2API_BUILD_TARGET")
-        if target not in selected_platforms():
-            raise RuntimeError("SUB2API_BUILD_TARGET must name one supported platform.")
-        compile_target = server if stage == "server" else installer
-        return [compile_target(workspace, tag, target)]
-    elif stage == "publish":
-        return publish(root, workspace, tag, selected)
+    elif stage == "resume":
+        return resume(root, workspace, tag, selected)
     else:
         raise RuntimeError(f"Unknown build stage: {stage}")
     return []

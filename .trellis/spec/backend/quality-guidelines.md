@@ -45,7 +45,9 @@ Do not create another suite for retired interfaces.
 Replace obsolete version allowlist assertions with advisory-warning assertions instead of retaining both sets.
 Test shared parsing and confirmation once. Do not multiply version cases by probe positions and confirmation inputs.
 The default build already executes test entries. Do not rerun unchanged entries as a separate acceptance gate.
-CI prepare runs shared checks once. Matrix jobs compile selected programs and installers without repeating those suites.
+One CI build job runs shared checks once and compiles selected programs and installers sequentially.
+Restore dependency caches once after source download. Upload only final executable pairs after the complete build succeeds.
+Use native Actions logs and status. Do not add custom summaries, duplicate log artifacts, or intermediate artifact transfers.
 Use builder output assembly and native Action/job failures instead of duplicate workflow output checks or successful-upload status aggregation.
 
 Preserve native administrator authentication, account transport, cancellation, history errors, and settings storage.

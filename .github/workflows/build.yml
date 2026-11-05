@@ -53,15 +53,11 @@ env:
   COREPACK_ENABLE_PROJECT_SPEC: "0"
 
 jobs:
-  prepare:
+  build:
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.source.outputs.tag }}
       source_sha: ${{ steps.source.outputs.source_sha }}
-      platforms: ${{ steps.source.outputs.platforms }}
-      server_count: ${{ steps.source.outputs.server_count }}
-      server_matrix: ${{ steps.source.outputs.server_matrix }}
-      installer_matrix: ${{ steps.source.outputs.installer_matrix }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -94,7 +90,6 @@ jobs:
           RELEASE_ENABLED: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || (github.event_name == 'workflow_dispatch' && inputs.release) }}
           RELEASE_TAG: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && github.ref_name || inputs.release_tag }}
         run: |
-          set -o pipefail
           if [[ "$RELEASE_ENABLED" == true && -z "$RELEASE_TAG" ]]; then
             echo "::error::A Release tag is required when publication is enabled."
             exit 1
@@ -106,8 +101,7 @@ jobs:
           if [[ "$DARWIN_ARM64" == true ]]; then platforms+=(darwin-arm64); fi
           if [[ "$WINDOWS_AMD64" == true ]]; then platforms+=(windows-amd64); fi
           export SUB2API_BUILD_PLATFORMS="${platforms[*]}"
-          mkdir -p dist
-          python3 scripts/build.py 2>&1 | tee dist/build-prepare.log
+          python3 scripts/build.py
           source_sha="$(git rev-parse HEAD)"
           printf 'source_sha=%s\n' "$source_sha" >> "$GITHUB_OUTPUT"
       - name: Locate dependency caches
@@ -132,9 +126,9 @@ jobs:
         id: go_build
         with:
           path: ${{ steps.paths.outputs.build }}
-          key: gobuild-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-linux-amd64-prepare-${{ hashFiles('dist/work/source/backend/go.sum', 'scripts/build.py') }}-${{ github.sha }}
+          key: gobuild-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-${{ hashFiles('dist/work/source/backend/go.sum', 'scripts/build.py') }}-${{ github.sha }}
           restore-keys: |
-            gobuild-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-linux-amd64-prepare-${{ hashFiles('dist/work/source/backend/go.sum', 'scripts/build.py') }}-
+            gobuild-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-${{ hashFiles('dist/work/source/backend/go.sum', 'scripts/build.py') }}-
       - uses: actions/cache/restore@v6.1.0
         id: pnpm
         with:
@@ -142,14 +136,82 @@ jobs:
           key: pnpm-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.node }}-${{ steps.source.outputs.pnpm }}-${{ hashFiles('dist/work/source/frontend/pnpm-lock.yaml', 'scripts/build.py') }}
           restore-keys: |
             pnpm-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.node }}-${{ steps.source.outputs.pnpm }}-
-      - name: Prepare and test
-        id: prepare
+      - name: Test and build selected platforms
         env:
-          SUB2API_BUILD_STAGE: prepare
+          SUB2API_BUILD_STAGE: resume
           UPSTREAM_TAG: ${{ steps.source.outputs.tag }}
-        run: |
-          set -o pipefail
-          python3 scripts/build.py 2>&1 | tee -a dist/build-prepare.log
+          SUB2API_BUILD_PLATFORMS: ${{ steps.source.outputs.platforms }}
+        run: python3 scripts/build.py
+      - name: Upload linux-amd64 server
+        if: ${{ contains(steps.source.outputs.platforms, 'linux-amd64') }}
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          path: dist/build/linux-amd64/sub2api-plugins-${{ steps.source.outputs.tag }}-linux-amd64
+          archive: false
+          if-no-files-found: error
+      - name: Upload linux-amd64 installer
+        if: ${{ contains(steps.source.outputs.platforms, 'linux-amd64') }}
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          path: dist/build/linux-amd64/sub2api-plugins-installer-${{ steps.source.outputs.tag }}-linux-amd64
+          archive: false
+          if-no-files-found: error
+      - name: Upload linux-arm64 server
+        if: ${{ contains(steps.source.outputs.platforms, 'linux-arm64') }}
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          path: dist/build/linux-arm64/sub2api-plugins-${{ steps.source.outputs.tag }}-linux-arm64
+          archive: false
+          if-no-files-found: error
+      - name: Upload linux-arm64 installer
+        if: ${{ contains(steps.source.outputs.platforms, 'linux-arm64') }}
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          path: dist/build/linux-arm64/sub2api-plugins-installer-${{ steps.source.outputs.tag }}-linux-arm64
+          archive: false
+          if-no-files-found: error
+      - name: Upload darwin-amd64 server
+        if: ${{ contains(steps.source.outputs.platforms, 'darwin-amd64') }}
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          path: dist/build/darwin-amd64/sub2api-plugins-${{ steps.source.outputs.tag }}-darwin-amd64
+          archive: false
+          if-no-files-found: error
+      - name: Upload darwin-amd64 installer
+        if: ${{ contains(steps.source.outputs.platforms, 'darwin-amd64') }}
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          path: dist/build/darwin-amd64/sub2api-plugins-installer-${{ steps.source.outputs.tag }}-darwin-amd64
+          archive: false
+          if-no-files-found: error
+      - name: Upload darwin-arm64 server
+        if: ${{ contains(steps.source.outputs.platforms, 'darwin-arm64') }}
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          path: dist/build/darwin-arm64/sub2api-plugins-${{ steps.source.outputs.tag }}-darwin-arm64
+          archive: false
+          if-no-files-found: error
+      - name: Upload darwin-arm64 installer
+        if: ${{ contains(steps.source.outputs.platforms, 'darwin-arm64') }}
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          path: dist/build/darwin-arm64/sub2api-plugins-installer-${{ steps.source.outputs.tag }}-darwin-arm64
+          archive: false
+          if-no-files-found: error
+      - name: Upload windows-amd64 server
+        if: ${{ contains(steps.source.outputs.platforms, 'windows-amd64') }}
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          path: dist/build/windows-amd64/sub2api-plugins-${{ steps.source.outputs.tag }}-windows-amd64.exe
+          archive: false
+          if-no-files-found: error
+      - name: Upload windows-amd64 installer
+        if: ${{ contains(steps.source.outputs.platforms, 'windows-amd64') }}
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          path: dist/build/windows-amd64/sub2api-plugins-installer-${{ steps.source.outputs.tag }}-windows-amd64.exe
+          archive: false
+          if-no-files-found: error
       - uses: actions/cache/save@v6.1.0
         if: ${{ steps.modules.outputs.cache-hit != 'true' }}
         with:
@@ -165,333 +227,18 @@ jobs:
         with:
           path: ${{ steps.paths.outputs.pnpm }}
           key: ${{ steps.pnpm.outputs.cache-primary-key }}
-      - name: Upload prepared source and installer
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          name: internal-prepared
-          path: |
-            dist/work/source/backend
-            dist/work/installer
-            !dist/work/installer/payloads/**
-          if-no-files-found: error
-      - name: Upload prepared Linux amd64 server
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          name: internal-server-linux-amd64
-          path: dist/work/binaries/sub2api-plugins-${{ steps.source.outputs.tag }}-linux-amd64
-          if-no-files-found: error
-      - name: Upload failure log
-        id: diagnostics
-        if: ${{ failure() && !cancelled() && (steps.source.outcome == 'failure' || steps.prepare.outcome == 'failure') }}
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          name: build-log-prepare
-          path: dist/build-prepare.log
-          if-no-files-found: ignore
-      - name: Report result
-        if: ${{ always() && !cancelled() }}
-        env:
-          STATUS: ${{ job.status }}
-          DIAGNOSTIC_URL: ${{ steps.diagnostics.outputs.artifact-url }}
-        run: |
-          printf 'Prepare: %s\n' "$STATUS" >> "$GITHUB_STEP_SUMMARY"
-          if [[ -n "$DIAGNOSTIC_URL" ]]; then
-            printf 'Diagnostics: [build log](%s)\n' "$DIAGNOSTIC_URL" >> "$GITHUB_STEP_SUMMARY"
-          fi
-
-  server:
-    needs: prepare
-    if: ${{ needs.prepare.outputs.server_count != '0' }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJSON(needs.prepare.outputs.server_matrix) }}
-    env:
-      UPSTREAM_TAG: ${{ needs.prepare.outputs.tag }}
-      SUB2API_BUILD_STAGE: server
-      SUB2API_BUILD_TARGET: ${{ matrix.target }}
-    steps:
-      - uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@v7.1.0
-        with:
-          python-version: "3.15.2"
-      - uses: actions/setup-go@v7.0.0
-        with:
-          go-version: "1.27.3"
-          cache: false
-      - uses: actions/download-artifact@v8.0.2
-        with:
-          name: internal-prepared
-          path: dist/work
-      - name: Locate Go caches
-        id: paths
-        run: |
-          modules="$(go env GOMODCACHE)"
-          build_cache="$(go env GOCACHE)"
-          go_version="$(go env GOVERSION)"
-          printf 'modules=%s\nbuild=%s\ngo=%s\n' "$modules" "$build_cache" "$go_version" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache/restore@v6.1.0
-        id: modules
-        with:
-          path: ${{ steps.paths.outputs.modules }}
-          key: gomod-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-${{ hashFiles('dist/work/source/backend/go.sum', 'scripts/build.py') }}
-          restore-keys: |
-            gomod-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-
-      - uses: actions/cache/restore@v6.1.0
-        id: go_build
-        with:
-          path: ${{ steps.paths.outputs.build }}
-          key: gobuild-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-${{ matrix.target }}-server-${{ hashFiles('dist/work/source/backend/go.sum', 'scripts/build.py') }}-${{ github.sha }}
-          restore-keys: |
-            gobuild-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-${{ matrix.target }}-server-${{ hashFiles('dist/work/source/backend/go.sum', 'scripts/build.py') }}-
-            gobuild-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-linux-amd64-prepare-${{ hashFiles('dist/work/source/backend/go.sum', 'scripts/build.py') }}-
-      - name: Compile server
-        id: compile
-        run: |
-          set -o pipefail
-          python3 scripts/build.py 2>&1 | tee "dist/build-server-$SUB2API_BUILD_TARGET.log"
-      - uses: actions/cache/save@v6.1.0
-        if: ${{ steps.go_build.outputs.cache-hit != 'true' }}
-        with:
-          path: ${{ steps.paths.outputs.build }}
-          key: ${{ steps.go_build.outputs.cache-primary-key }}
-      - name: Upload server handoff
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          name: internal-server-${{ matrix.target }}
-          path: dist/work/binaries/*
-          if-no-files-found: error
-      - name: Upload failure log
-        id: diagnostics
-        if: ${{ failure() && !cancelled() && (steps.compile.outcome == 'failure') }}
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          name: build-log-server-${{ matrix.target }}
-          path: dist/build-server-${{ matrix.target }}.log
-          if-no-files-found: ignore
-      - name: Report result
-        if: ${{ always() && !cancelled() }}
-        env:
-          STATUS: ${{ job.status }}
-          DIAGNOSTIC_URL: ${{ steps.diagnostics.outputs.artifact-url }}
-        run: |
-          printf 'Server: %s\n' "$STATUS" >> "$GITHUB_STEP_SUMMARY"
-          if [[ -n "$DIAGNOSTIC_URL" ]]; then
-            printf 'Diagnostics: [build log](%s)\n' "$DIAGNOSTIC_URL" >> "$GITHUB_STEP_SUMMARY"
-          fi
-
-  installer:
-    needs: [prepare, server]
-    if: ${{ !cancelled() && needs.prepare.result == 'success' && ((needs.prepare.outputs.server_count == '0' && needs.server.result == 'skipped') || needs.server.result == 'success') }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJSON(needs.prepare.outputs.installer_matrix) }}
-    env:
-      UPSTREAM_TAG: ${{ needs.prepare.outputs.tag }}
-      SUB2API_BUILD_STAGE: installer
-      SUB2API_BUILD_TARGET: ${{ matrix.target }}
-    steps:
-      - uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@v7.1.0
-        with:
-          python-version: "3.15.2"
-      - uses: actions/setup-go@v7.0.0
-        with:
-          go-version: "1.27.3"
-          cache: false
-      - uses: actions/download-artifact@v8.0.2
-        with:
-          name: internal-prepared
-          path: dist/work
-      - name: Download native server
-        uses: actions/download-artifact@v8.0.2
-        with:
-          name: internal-server-${{ matrix.target }}
-          path: dist/work/binaries
-      - name: Download Linux container server
-        if: ${{ matrix.target != matrix.linux }}
-        uses: actions/download-artifact@v8.0.2
-        with:
-          name: internal-server-${{ matrix.linux }}
-          path: dist/work/binaries
-      - name: Locate Go caches
-        id: paths
-        run: |
-          modules="$(go env GOMODCACHE)"
-          build_cache="$(go env GOCACHE)"
-          go_version="$(go env GOVERSION)"
-          printf 'modules=%s\nbuild=%s\ngo=%s\n' "$modules" "$build_cache" "$go_version" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache/restore@v6.1.0
-        id: modules
-        with:
-          path: ${{ steps.paths.outputs.modules }}
-          key: gomod-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-${{ hashFiles('dist/work/source/backend/go.sum', 'scripts/build.py') }}
-          restore-keys: |
-            gomod-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-
-      - uses: actions/cache/restore@v6.1.0
-        id: go_build
-        with:
-          path: ${{ steps.paths.outputs.build }}
-          key: gobuild-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-${{ matrix.target }}-installer-${{ hashFiles('dist/work/source/backend/go.sum', 'dist/work/installer/go.sum', 'scripts/build.py') }}-${{ github.sha }}
-          restore-keys: |
-            gobuild-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-${{ matrix.target }}-installer-${{ hashFiles('dist/work/source/backend/go.sum', 'dist/work/installer/go.sum', 'scripts/build.py') }}-
-            gobuild-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-${{ matrix.target }}-server-${{ hashFiles('dist/work/source/backend/go.sum', 'scripts/build.py') }}-
-            gobuild-${{ runner.os }}-${{ runner.arch }}-${{ steps.paths.outputs.go }}-linux-amd64-prepare-${{ hashFiles('dist/work/source/backend/go.sum', 'scripts/build.py') }}-
-      - name: Compile installer
-        id: compile
-        run: |
-          set -o pipefail
-          python3 scripts/build.py 2>&1 | tee "dist/build-installer-$SUB2API_BUILD_TARGET.log"
-      - uses: actions/cache/save@v6.1.0
-        if: ${{ steps.go_build.outputs.cache-hit != 'true' }}
-        with:
-          path: ${{ steps.paths.outputs.build }}
-          key: ${{ steps.go_build.outputs.cache-primary-key }}
-      - name: Upload installer handoff
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          name: internal-installer-${{ matrix.target }}
-          path: dist/work/installers/*
-          if-no-files-found: error
-      - name: Upload failure log
-        id: diagnostics
-        if: ${{ failure() && !cancelled() && (steps.compile.outcome == 'failure') }}
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          name: build-log-installer-${{ matrix.target }}
-          path: dist/build-installer-${{ matrix.target }}.log
-          if-no-files-found: ignore
-      - name: Report result
-        if: ${{ always() && !cancelled() }}
-        env:
-          STATUS: ${{ job.status }}
-          DIAGNOSTIC_URL: ${{ steps.diagnostics.outputs.artifact-url }}
-        run: |
-          printf 'Installer: %s\n' "$STATUS" >> "$GITHUB_STEP_SUMMARY"
-          if [[ -n "$DIAGNOSTIC_URL" ]]; then
-            printf 'Diagnostics: [build log](%s)\n' "$DIAGNOSTIC_URL" >> "$GITHUB_STEP_SUMMARY"
-          fi
-
-  publish:
-    needs: [prepare, server, installer]
-    if: ${{ !cancelled() && needs.prepare.result == 'success' && ((needs.prepare.outputs.server_count == '0' && needs.server.result == 'skipped') || needs.server.result == 'success') && needs.installer.result == 'success' }}
-    runs-on: ubuntu-latest
-    env:
-      UPSTREAM_TAG: ${{ needs.prepare.outputs.tag }}
-      SUB2API_BUILD_STAGE: publish
-      SUB2API_BUILD_PLATFORMS: ${{ needs.prepare.outputs.platforms }}
-    steps:
-      - uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@v7.1.0
-        with:
-          python-version: "3.15.2"
-      - uses: actions/download-artifact@v8.0.2
-        with:
-          pattern: internal-server-*
-          merge-multiple: true
-          path: dist/work/binaries
-      - uses: actions/download-artifact@v8.0.2
-        with:
-          pattern: internal-installer-*
-          merge-multiple: true
-          path: dist/work/installers
-      - name: Publish selected products
-        run: python3 scripts/build.py
-      - name: Upload linux-amd64 server
-        if: ${{ contains(needs.prepare.outputs.platforms, 'linux-amd64') }}
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          path: dist/build/linux-amd64/sub2api-plugins-${{ needs.prepare.outputs.tag }}-linux-amd64
-          archive: false
-          if-no-files-found: error
-      - name: Upload linux-amd64 installer
-        if: ${{ contains(needs.prepare.outputs.platforms, 'linux-amd64') }}
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          path: dist/build/linux-amd64/sub2api-plugins-installer-${{ needs.prepare.outputs.tag }}-linux-amd64
-          archive: false
-          if-no-files-found: error
-      - name: Upload linux-arm64 server
-        if: ${{ contains(needs.prepare.outputs.platforms, 'linux-arm64') }}
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          path: dist/build/linux-arm64/sub2api-plugins-${{ needs.prepare.outputs.tag }}-linux-arm64
-          archive: false
-          if-no-files-found: error
-      - name: Upload linux-arm64 installer
-        if: ${{ contains(needs.prepare.outputs.platforms, 'linux-arm64') }}
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          path: dist/build/linux-arm64/sub2api-plugins-installer-${{ needs.prepare.outputs.tag }}-linux-arm64
-          archive: false
-          if-no-files-found: error
-      - name: Upload darwin-amd64 server
-        if: ${{ contains(needs.prepare.outputs.platforms, 'darwin-amd64') }}
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          path: dist/build/darwin-amd64/sub2api-plugins-${{ needs.prepare.outputs.tag }}-darwin-amd64
-          archive: false
-          if-no-files-found: error
-      - name: Upload darwin-amd64 installer
-        if: ${{ contains(needs.prepare.outputs.platforms, 'darwin-amd64') }}
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          path: dist/build/darwin-amd64/sub2api-plugins-installer-${{ needs.prepare.outputs.tag }}-darwin-amd64
-          archive: false
-          if-no-files-found: error
-      - name: Upload darwin-arm64 server
-        if: ${{ contains(needs.prepare.outputs.platforms, 'darwin-arm64') }}
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          path: dist/build/darwin-arm64/sub2api-plugins-${{ needs.prepare.outputs.tag }}-darwin-arm64
-          archive: false
-          if-no-files-found: error
-      - name: Upload darwin-arm64 installer
-        if: ${{ contains(needs.prepare.outputs.platforms, 'darwin-arm64') }}
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          path: dist/build/darwin-arm64/sub2api-plugins-installer-${{ needs.prepare.outputs.tag }}-darwin-arm64
-          archive: false
-          if-no-files-found: error
-      - name: Upload windows-amd64 server
-        if: ${{ contains(needs.prepare.outputs.platforms, 'windows-amd64') }}
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          path: dist/build/windows-amd64/sub2api-plugins-${{ needs.prepare.outputs.tag }}-windows-amd64.exe
-          archive: false
-          if-no-files-found: error
-      - name: Upload windows-amd64 installer
-        if: ${{ contains(needs.prepare.outputs.platforms, 'windows-amd64') }}
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          path: dist/build/windows-amd64/sub2api-plugins-installer-${{ needs.prepare.outputs.tag }}-windows-amd64.exe
-          archive: false
-          if-no-files-found: error
-      - name: Report result
-        if: ${{ always() && !cancelled() }}
-        env:
-          STATUS: ${{ job.status }}
-        run: |
-          printf 'Products: %s\n' "$STATUS" >> "$GITHUB_STEP_SUMMARY"
 
   release:
-    needs: [prepare, publish]
-    if: ${{ !cancelled() && needs.publish.result == 'success' && ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || (github.event_name == 'workflow_dispatch' && inputs.release)) }}
+    needs: build
+    if: ${{ !cancelled() && needs.build.result == 'success' && ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || (github.event_name == 'workflow_dispatch' && inputs.release)) }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
-      SOURCE_SHA: ${{ needs.prepare.outputs.source_sha }}
-      UPSTREAM_TAG: ${{ needs.prepare.outputs.tag }}
+      SOURCE_SHA: ${{ needs.build.outputs.source_sha }}
+      UPSTREAM_TAG: ${{ needs.build.outputs.tag }}
       RELEASE_TAG: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && github.ref_name || inputs.release_tag }}
     steps:
       - uses: actions/download-artifact@v8.0.2
@@ -519,9 +266,3 @@ jobs:
             --target "$SOURCE_SHA" \
             --title "Sub2API-Plugin ${SOURCE_SHA:0:7} (v${UPSTREAM_TAG#v})" \
             --generate-notes
-      - name: Report result
-        if: ${{ always() && !cancelled() }}
-        env:
-          STATUS: ${{ job.status }}
-        run: |
-          printf 'Release: %s\n' "$STATUS" >> "$GITHUB_STEP_SUMMARY"
