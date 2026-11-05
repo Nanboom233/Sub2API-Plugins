@@ -3,9 +3,11 @@
 ## Current Sub2API scope
 
 Use [administrator evaluation](./runtime-installation.md), [native inspection](./native-inspection.md), and [binary delivery](./minimal-linux-delivery.md) for current contracts.
-The delivery targets Sub2API v0.2.19 on Linux/amd64.
+Delivery uses the selected upstream tag on Linux amd64/arm64, Darwin amd64/arm64, and Windows amd64.
+Sub2API v0.2.19 remains the verified integration baseline.
 Installer version mismatches produce warnings and require explicit confirmation. Matching executable versions need no version prompt.
-The common build downloads upstream source and discovers every plugin submodule under `plugins/`.
+The common build downloads upstream source and discovers initialized plugin submodules with production patches under `plugins/`.
+Each plugin and the template retain a complete aligned build kit. Local builds and CI use the same argument-free entry.
 Plugins own patches and business tests. All assertions and test support code live in flat `tests/`. `assets/` contains data only.
 Use [Directory Structure](./directory-structure.md) for file ownership.
 
@@ -24,15 +26,18 @@ Report actual failures, skipped checks, and execution limits.
 
 Use plugin `tests/test_ui.cjs` directly for existing native page assertions.
 Manual `tests/native_*` helpers belong to the evaluation plugin and stay outside automatic `test_*` discovery.
-Use [the native installer tests](../../../tests/test_installer_test.go) directly for self-extraction and the Docker transaction.
-Run these tests in the build's temporary host-platform installer module. Keep Linux/amd64 release flags separate.
+Use [the native installer tests](../../../tests/test_installer_test.go) for shared transactions and changed native/Apple control paths.
+Run them in the temporary host-platform installer module. Keep cross-compilation flags separate from host tests.
 Native Go suites use flat `test_*_test.go` files and `// sub2api-package:` annotations for temporary package placement.
 Execute each discovered Go case once with native `go test`. Preserve standalone Go program support and direct Python/CJS execution.
 Native Vue cases use flat `tests/test_*.test.ts` suites and the downloaded frontend's existing Vitest runtime.
 The common runner stages suites and support files temporarily, runs explicit suite paths, and cleans the files after success or failure.
 Keep upstream response mapping in backend tests. Vue tests consume mapped fields without repeating that response matrix.
 Do not hide test suites in assets, encoded payloads, or source strings behind wrapper entries.
-Reuse the existing fake-Docker and local HTTP harness for changed installer behavior.
+Reuse the existing command and local HTTP harness for changed installer behavior.
+Check locale precedence, plain streams, and changed cancellation behavior within the existing suite.
+Inspect actual dynamic terminal selection, spinner-to-prompt transitions, and cancellation for terminal presentation changes.
+Compile the five approved outputs in one default combined build. Cross-compilation does not prove runtime installation on every platform.
 Automatic acceptance requires no retained Docker container or manual browser session.
 Do not create another suite for retired interfaces.
 Replace obsolete version allowlist assertions with advisory-warning assertions instead of retaining both sets.

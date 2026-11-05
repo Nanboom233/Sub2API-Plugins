@@ -2,10 +2,15 @@
 
 ## Current scope
 
-Active delivery targets Sub2API v0.2.19 Linux/amd64 with automatically discovered plugin submodules.
+Active delivery builds the selected upstream tag on Linux amd64/arm64, Darwin amd64/arm64, and Windows amd64.
+The verified integration baseline is Sub2API v0.2.19.
+Builds discover plugin submodules automatically.
 The common build downloads upstream source. Plugins own production patches, business tests, and their licenses.
+Each plugin and the template carry a complete standalone build kit. Local builds and CI both run `python3 scripts/build.py`.
+Combined builds skip empty patch sets and run common build/installer tests once.
 All test cases and support code live in flat `tests/`. `assets/` contains data resources only.
-Installation uses one self-extracting Go executable with an embedded server and numbered container selection.
+Each platform has a self-contained Go installer for Docker/Compose, native programs, and supported Apple container installations.
+The installer uses dynamic terminal interaction where supported, plain numbered prompts otherwise, and automatic Chinese/English terminal locale.
 
 ## Active guidelines
 
@@ -48,7 +53,7 @@ For changed native code, use the current entry:
 python3 scripts/build.py
 ```
 
-It downloads source, combines plugins, runs executable test entries, builds the frontend/server, and packages fixed outputs.
+It downloads source, combines plugins, runs executable test entries, and builds versioned program and installer outputs.
 Reuse completed baseline and unchanged integration evidence.
 Add focused checks only for changed behavior lacking coverage.
 Format changed Go files and check affected scripts/resources.

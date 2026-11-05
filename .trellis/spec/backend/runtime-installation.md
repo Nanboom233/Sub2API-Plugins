@@ -101,7 +101,7 @@ After sequence acceptance, three valid answers produce probabilities. One or two
 Sequence rejection produces `attribution.decision: not_model` without rankings or probabilities.
 Parse the longest numeric run within 64,000 bytes. Keep values from 1 through 355.
 Require `max(80, ceil(expected * 0.55))` values and truncate excess values to the expected count.
-Sequence acceptance requires median lag-one autocorrelation at most -0.23 and median small-step share at most 0.05.
+Sequence acceptance requires median lag-one autocorrelation at most -0.23 or median small-step share at most 0.05.
 Explicit failed or cancelled status takes precedence over attribution.
 Cancellation before three completed challenge events remains cancelled.
 Comparison aliases do not change the literal sent model.
@@ -163,6 +163,9 @@ Use the same-origin session in the frame rather than guessing its external origi
 Page-only headers permit same-origin framing and original inline scripts/styles.
 Native parent/global headers remain unchanged. Rebuild the patched native frontend before embedding it in the server.
 Retain original layout, controls, Markdown/math and Pelican sandbox behavior.
+Preserve the original CPA footer attribution, upstream MIT link, and dynamic version.
+Immediately after MIT, show the user-requested `LGPL-3.0` link to `https://github.com/Wei-Shaw/sub2api/blob/main/LICENSE`.
+License-file changes do not authorize other footer rewrites.
 Remove assistant-added explanatory small print and tooltips.
 Keep field labels, units, actual errors, result data, progress, and concise action feedback.
 Use native light/dark theme variables.
@@ -216,7 +219,7 @@ Normal HTTP request completion preserves background work. Explicit stop cancels 
 [Runtime tests](../../../plugins/codex-candy-eval/tests/test_codexeval_runtime_test.go) cover admission, cancellation, history and stream outcomes.
 [Sender tests](../../../plugins/codex-candy-eval/tests/test_service_account_codex_eval_service_test.go) cover native transport and CC failures with observed usage.
 Algorithm suites live directly under plugin `tests/`. Native package annotations retain private access in temporary upstream packages.
-The [plugin README](../../../plugins/codex-candy-eval/README.md) describes its standalone entry and plugin-owned inputs.
+The [plugin builder](../../../plugins/codex-candy-eval/scripts/build.py) owns the automatic standalone entry and plugin-owned inputs.
 Reuse completed pristine and local integration evidence unless a change or concrete finding requires another check.
 No race, coverage, full-suite, architecture matrix or source-resource parity gate is required.
 

@@ -4,6 +4,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -13,14 +14,20 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 )
 
 func TestMain(m *testing.M) {
 	buildVersion = os.Getenv("SUB2API_BUILD_VERSION")
+	if len(os.Args) == 2 && os.Args[1] == "-version" {
+		fmt.Print(consoleVersion(buildVersion))
+		os.Exit(0)
+	}
 	os.Exit(m.Run())
 }
 
@@ -34,6 +41,22 @@ type fakeState struct {
 	BadBackup                  bool
 	Image                      string
 	VersionStdErr              bool
+	Apple                      bool
+	Arch                       string
+}
+
+func fixtureELF(arch string) []byte {
+	header := make([]byte, 64)
+	copy(header, []byte{0x7f, 'E', 'L', 'F', 2, 1, 1})
+	binary.LittleEndian.PutUint16(header[16:], 2)
+	machine := uint16(0x3e)
+	if arch == "arm64" {
+		machine = 0xb7
+	}
+	binary.LittleEndian.PutUint16(header[18:], machine)
+	binary.LittleEndian.PutUint32(header[20:], 1)
+	binary.LittleEndian.PutUint16(header[52:], 64)
+	return header
 }
 
 func readState(path string) fakeState {
@@ -62,6 +85,26 @@ func writeState(path string, state fakeState) {
 func TestDockerHelper(t *testing.T) {
 	path := os.Getenv("INSTALLER_FAKE_DOCKER_STATE")
 	if path == "" {
+		for _, quiet := range []bool{false, true} {
+			t.Run(fmt.Sprintf("quiet=%t", quiet), func(t *testing.T) {
+				f := newFixture(t, fakeState{}, "")
+				output, err := f.i.docker(f.ctx, quiet, "restart", "immutable-target-123456")
+				if err != nil || output != "immutable-target-123456\n" {
+					t.Fatalf("Successful command: output=%q error=%v", output, err)
+				}
+				if quiet && f.out.Len() != 0 || !quiet && f.out.String() != output || f.errOut.Len() != 0 {
+					t.Fatalf("Successful output: stdout=%q stderr=%q", f.out.String(), f.errOut.String())
+				}
+				f.out.Reset()
+				_, err = f.i.docker(f.ctx, quiet, "fixture-error")
+				if err == nil || !strings.Contains(err.Error(), "docker fixture-error failed:") {
+					t.Fatalf("Command context missing: %v", err)
+				}
+				if f.out.Len() != 0 || f.errOut.Len() != 0 || strings.Count(err.Error(), "Unexpected Docker command") != 1 {
+					t.Fatalf("Failure detail must have one owner: stdout=%q stderr=%q error=%v", f.out.String(), f.errOut.String(), err)
+				}
+			})
+		}
 		return
 	}
 	var args []string
@@ -112,6 +155,18 @@ func fakeCommand(s *fakeState, args []string) (string, error) {
 				item.NetworkSettings.Ports = map[string][]struct{ HostIp, HostPort string }{"8080/tcp": {{"0.0.0.0", port}}}
 				item.RestartCount = s.Restarts
 			}
+			if s.Apple {
+				_, port, _ := net.SplitHostPort(s.Address)
+				hostPort, _ := strconv.Atoi(port)
+				data, _ := json.Marshal([]any{map[string]any{
+					"configuration": map[string]any{
+						"id": item.ID, "platform": map[string]any{"os": "linux", "architecture": "arm64"},
+						"initProcess":    map[string]any{"environment": []string{"SERVER_PORT=8080"}},
+						"publishedPorts": []any{map[string]any{"hostAddress": "127.0.0.1", "hostPort": hostPort, "containerPort": 8080, "proto": "tcp", "count": 1}},
+					}, "status": map[string]any{"state": item.State.Status, "networks": []any{}},
+				}})
+				return string(data), nil
+			}
 			data, _ := json.Marshal([]container{item})
 			if s.Image != "" {
 				var records []map[string]any
@@ -123,8 +178,8 @@ func fakeCommand(s *fakeState, args []string) (string, error) {
 		}
 		return "", fmt.Errorf("Unknown immutable ID: %s", args[1])
 	case "cp":
-		if strings.HasSuffix(args[1], ":"+binaryPath) {
-			data := append([]byte{}, elfHeader...)
+		if strings.HasSuffix(args[1], ":"+binaryPath) || strings.HasSuffix(args[1], ":"+appleBinaryPath) {
+			data := fixtureELF(s.Arch)
 			if s.BadBackup {
 				data[0] = 0
 			}
@@ -134,7 +189,7 @@ func fakeCommand(s *fakeState, args []string) (string, error) {
 		if isBackup && s.Mode == "restore-failure" {
 			return "", fmt.Errorf("Synthetic restore copy failure")
 		}
-		if strings.HasSuffix(args[2], ":"+binaryPath) {
+		if strings.HasSuffix(args[2], ":"+binaryPath) || strings.HasSuffix(args[2], ":"+appleBinaryPath) {
 			if isBackup {
 				s.Current = "original"
 			} else {
@@ -143,6 +198,12 @@ func fakeCommand(s *fakeState, args []string) (string, error) {
 		}
 		return "", nil
 	case "exec":
+		if args[2] == "uname" {
+			if s.Arch == "arm64" {
+				return "aarch64\n", nil
+			}
+			return "x86_64\n", nil
+		}
 		if args[1] == "-u" {
 			switch args[4] {
 			case "chmod":
@@ -158,7 +219,7 @@ func fakeCommand(s *fakeState, args []string) (string, error) {
 			}
 			return "", nil
 		}
-		if args[2] == stagedPath {
+		if args[2] == stagedPath || args[2] == appleBinaryPath+".plugins-new" {
 			return consoleVersion(s.Candidate), nil
 		}
 		if s.Mode == "probe-timeout" {
@@ -172,6 +233,27 @@ func fakeCommand(s *fakeState, args []string) (string, error) {
 		s.Restarts++
 		s.SinceRestart = 0
 		return args[1] + "\n", nil
+	case "list":
+		return fakeCommand(s, []string{"ps", "-q"})
+	case "stop":
+		for n := range s.Containers {
+			s.Containers[n].State.Running = false
+			s.Containers[n].State.Status = "stopped"
+		}
+		return "", nil
+	case "start":
+		if s.Mode == "apple-start-failure" {
+			return "", fmt.Errorf("Synthetic Apple runtime failure")
+		}
+		for n := range s.Containers {
+			s.Containers[n].State.Running = true
+			s.Containers[n].State.Status = "running"
+		}
+		s.Restarts++
+		s.SinceRestart = 0
+		return "", nil
+	case "systemctl":
+		return "", nil
 	}
 	return "", fmt.Errorf("Unexpected Docker command: %v", args)
 }
@@ -241,6 +323,13 @@ func newFixture(t *testing.T, state fakeState, input string) *fixture {
 	if err := os.WriteFile(filepath.Join(root, "docker"), []byte(shim), 0755); err != nil {
 		t.Fatal(err)
 	}
+	if err := os.WriteFile(filepath.Join(root, "container"), []byte(shim), 0755); err != nil {
+		t.Fatal(err)
+	}
+	serviceShim := strings.Replace(shim, "-- \"$@\"", "-- systemctl \"$@\"", 1)
+	if err := os.WriteFile(filepath.Join(root, "systemctl"), []byte(serviceShim), 0755); err != nil {
+		t.Fatal(err)
+	}
 	t.Setenv("PATH", root+string(os.PathListSeparator)+os.Getenv("PATH"))
 	t.Setenv("INSTALLER_FAKE_DOCKER_STATE", f.statePath)
 	f.i = &installer{in: strings.NewReader(input), out: &f.out, errOut: &f.errOut, timeout: 600 * time.Millisecond, poll: 10 * time.Millisecond}
@@ -249,7 +338,7 @@ func newFixture(t *testing.T, state fakeState, input string) *fixture {
 		t.Fatal(err)
 	}
 	f.source = filepath.Join(payloadDirectory, "sub2api")
-	if err := os.WriteFile(f.source, elfHeader, 0755); err != nil {
+	if err := os.WriteFile(f.source, fixtureELF(state.Arch), 0755); err != nil {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() {
@@ -382,7 +471,7 @@ func TestInstallTransaction(t *testing.T) {
 			if tc.mode == "restart" && !strings.Contains(f.out.String(), "state=restarting") {
 				t.Fatal(f.out.String())
 			}
-			if tc.mode == "restore-failure" && !strings.Contains(err.Error(), "Backup: /tmp/") {
+			if tc.mode == "restore-failure" && !strings.Contains(err.Error(), "Backup: "+os.TempDir()) {
 				t.Fatal(err)
 			}
 			for _, line := range strings.Split(f.out.String(), "\n") {
@@ -391,7 +480,7 @@ func TestInstallTransaction(t *testing.T) {
 					if err != nil || info.Mode().Perm() != 0700 {
 						t.Fatal("Backup directory is not private", err)
 					}
-					if err := checkELF(path); err != nil {
+					if err := checkExecutable(path, "linux", "amd64"); err != nil {
 						t.Fatal("Backup was not retained", err)
 					}
 				}
@@ -405,7 +494,7 @@ func TestRejectionBeforeReplacement(t *testing.T) {
 		name, installed, candidate, mode, expected string
 		badELF, badBackup                          bool
 	}{
-		{name: "candidate-elf", badELF: true, expected: "Linux/amd64"},
+		{name: "candidate-elf", badELF: true, expected: "linux/amd64"},
 		{name: "backup-elf", badBackup: true, expected: "existing executable"},
 		{name: "chmod-cleanup", mode: "chmod-failure", expected: "Synthetic chmod failure"},
 	}
@@ -441,8 +530,9 @@ func TestRejectionBeforeReplacement(t *testing.T) {
 }
 
 func TestEntryAndEmbeddedPayload(t *testing.T) {
-	f := newFixture(t, fakeState{}, "1\n")
-	if err := run(f.ctx, strings.NewReader("1\n"), &f.out, &f.errOut); err != nil {
+	f := newFixture(t, fakeState{Arch: runtime.GOARCH}, "1\n1\n")
+	t.Setenv("LC_ALL", "C")
+	if err := run(f.ctx, strings.NewReader("1\n1\n"), &f.out, &f.errOut); err != nil {
 		t.Fatal(err)
 	}
 	for _, call := range readState(f.statePath).Calls {
@@ -596,5 +686,157 @@ func TestEndpoint(t *testing.T) {
 	item.NetworkSettings.Ports = map[string][]struct{ HostIp, HostPort string }{"9000/tcp": {{"::", strconv.Itoa(19000)}}}
 	if address, err := endpoint(item); err != nil || address != "127.0.0.1:19000" {
 		t.Fatal(address, err)
+	}
+}
+
+func TestNativeInstallation(t *testing.T) {
+	for _, mode := range []string{"manual", "systemd", "manual-interrupt", "systemd-interrupt", "manual-no-recovery-input"} {
+		t.Run(mode, func(t *testing.T) {
+			input := "yes\nyes\n"
+			if mode == "manual-interrupt" {
+				input += "yes\nyes\n"
+			}
+			f := newFixture(t, fakeState{}, input)
+			executable, err := os.Executable()
+			if err != nil {
+				t.Fatal(err)
+			}
+			original, err := os.ReadFile(executable)
+			if err != nil {
+				t.Fatal(err)
+			}
+			path := filepath.Join(t.TempDir(), "sub2api")
+			if err := os.WriteFile(path, original, 0750); err != nil {
+				t.Fatal(err)
+			}
+			candidate := append(append([]byte{}, original...), []byte("candidate payload")...)
+			if err := os.WriteFile(f.source, candidate, 0750); err != nil {
+				t.Fatal(err)
+			}
+			info, err := os.Stat(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var canceled atomic.Bool
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				current, err := os.ReadFile(path)
+				if err != nil {
+					t.Error(err)
+					return
+				}
+				if (strings.HasSuffix(mode, "interrupt") || mode == "manual-no-recovery-input") && bytes.Equal(current, candidate) && !canceled.Swap(true) {
+					f.cancel()
+					http.Error(w, "interrupted", 503)
+					return
+				}
+				if r.URL.Path == "/health" {
+					fmt.Fprint(w, `{"status":"ok"}`)
+				} else {
+					fmt.Fprint(w, `{"data":{"needs_setup":false}}`)
+				}
+			}))
+			defer server.Close()
+			target := nativeTarget{path: path, address: strings.TrimPrefix(server.URL, "http://"), info: info}
+			if strings.HasPrefix(mode, "systemd") {
+				target.service = "sub2api.service"
+			}
+			err = f.i.replaceNative(f.ctx, target, f.source)
+			result, readErr := os.ReadFile(path)
+			if readErr != nil {
+				t.Fatal(readErr)
+			}
+			if strings.HasSuffix(mode, "interrupt") || mode == "manual-no-recovery-input" {
+				if err == nil || !strings.Contains(err.Error(), "context canceled") {
+					t.Fatalf("Expected interruption: %v", err)
+				}
+				if strings.HasSuffix(mode, "interrupt") && (!bytes.Equal(result, original) || !strings.Contains(f.errOut.String(), "Original executable restored.")) {
+					t.Fatal(err, f.errOut.String())
+				}
+				if mode == "manual-no-recovery-input" && (!strings.Contains(err.Error(), "Manual recovery is pending") || !bytes.Equal(result, candidate)) {
+					t.Fatal(err)
+				}
+			} else if err != nil || !bytes.Equal(result, candidate) {
+				t.Fatal(err, f.out.String(), f.errOut.String())
+			}
+			if strings.HasPrefix(mode, "systemd") {
+				calls := readState(f.statePath).Calls
+				if !hasCall(calls, "systemctl", "stop", "sub2api.service") || !hasCall(calls, "systemctl", "start", "sub2api.service") {
+					t.Fatal(calls)
+				}
+			}
+			for _, line := range strings.Split(f.out.String(), "\n") {
+				if backup, ok := strings.CutPrefix(line, "Backup: "); ok {
+					data, err := os.ReadFile(backup)
+					if err != nil || !bytes.Equal(data, original) {
+						t.Fatal("Backup changed", err)
+					}
+					os.RemoveAll(filepath.Dir(backup))
+				}
+			}
+			current, err := os.Stat(path)
+			if err != nil || current.Mode().Perm() != 0750 {
+				t.Fatal("Executable access changed", err)
+			}
+		})
+	}
+}
+
+func TestAppleInstallation(t *testing.T) {
+	for _, mode := range []string{"success", "stopped", "apple-start-failure"} {
+		t.Run(mode, func(t *testing.T) {
+			f := newFixture(t, fakeState{Apple: true, Arch: "arm64", Mode: mode}, "1\n")
+			f.i.apple, f.i.arch = true, "arm64"
+			err := f.i.install(f.ctx, f.source)
+			state := readState(f.statePath)
+			cid := state.Containers[0].ID
+			if mode == "success" && (err != nil || state.Current != "candidate") {
+				t.Fatal(err, f.out.String())
+			}
+			if mode == "stopped" && (err == nil || state.Current != "original" || !strings.Contains(f.errOut.String(), "Original executable restored.")) {
+				t.Fatal(err, f.errOut.String())
+			}
+			if mode == "apple-start-failure" && (err == nil || !strings.Contains(err.Error(), "Restoration failed") || !strings.Contains(err.Error(), "Backup:")) {
+				t.Fatal(err)
+			}
+			if !hasCall(state.Calls, "stop", "--time", "30", cid) || !hasCall(state.Calls, "start", cid) {
+				t.Fatal(state.Calls)
+			}
+			for _, call := range state.Calls {
+				joined := strings.Join(call, " ")
+				if strings.Contains(joined, "base-image-id") || hasCall([][]string{call}, "restart", cid) {
+					t.Fatal("Changed the image marker or Docker lifecycle", call)
+				}
+				if call[0] == "cp" && call[1] == cid+":"+appleBinaryPath {
+					if _, err := os.Stat(call[2]); err != nil {
+						t.Fatal("Host backup missing", err)
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestTerminalLocaleAndPlainInput(t *testing.T) {
+	for _, tc := range []struct {
+		all, messages, lang string
+		chinese             bool
+	}{
+		{"", "", "zh_CN.UTF-8", true}, {"ZH-tw.UTF-8", "", "en_US", true},
+		{"C", "", "zh_CN", false}, {"", "POSIX", "zh_CN", false}, {"", "zh_HK", "en_US", true}, {"", "", "", false},
+	} {
+		env := map[string]string{"LC_ALL": tc.all, "LC_MESSAGES": tc.messages, "LANG": tc.lang}
+		if got := chineseLocale(func(key string) string { return env[key] }); got != tc.chinese {
+			t.Fatalf("Locale %v: %t", env, got)
+		}
+	}
+	var output bytes.Buffer
+	i := installer{in: strings.NewReader("\n2\n"), out: &output}
+	i.ui = newTerminalUI(i.in, i.out)
+	if i.ui.dynamic {
+		t.Fatal("Injected streams enabled cursor control")
+	}
+	choice, err := i.choose(context.Background(), []string{"[1] first", "[2] second"})
+	if err != nil || choice != 2 || strings.Contains(output.String(), "\x1b") {
+		t.Fatal(choice, err, output.String())
 	}
 }

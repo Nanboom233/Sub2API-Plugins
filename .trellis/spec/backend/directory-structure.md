@@ -7,7 +7,8 @@
 ## Overview
 
 Plugin submodules own production patches, business tests, and plugin license inputs.
-The common build downloads Sub2API v0.2.19 and combines every plugin under `plugins/` in one temporary source tree.
+The common build downloads the selected upstream tag and combines active plugin submodules in one temporary source tree.
+An initialized plugin with no top-level `patches/*.patch` files contributes no patches, tests, or licenses to that build.
 This repository has no root Go module or shared-library entry point.
 The user package replaces the server binary without compilation on the installation host.
 
@@ -27,27 +28,43 @@ plugins/<name>/tests/test_*.test.ts Native Vue component suites
 plugins/<name>/tests/native_*     Manual test fixture and support code
 plugins/<name>/assets/           Data resources
 plugins/<name>/scripts/          Standalone build helpers
+plugins/<name>/.github/workflows/build.yml Independent artifact build
 plugins/<name>/LICENSE           Plugin license
 plugins/<name>/licenses/         Original third-party license files
 scripts/build.py                Automatic common build
+.github/workflows/build.yml     Combined artifact build
 scripts/installer/              Go installer and restoration
 tests/test_build.py             Shared build test cases
 tests/test_installer_test.go    Native installer transaction and version cases
 LICENSE                         Common build and installer license
+README.md                       Chinese usage, build, and license instructions
 licenses/                       Original third-party license files
-dist/build/                     Ignored server and installer outputs
+dist/build/<os>-<arch>/          Ignored platform server and installer outputs
 .trellis/                       Workflow, specifications, tasks, and session records
 ```
 
-The self-extracting installer uses its embedded server and Docker CLI.
-Users select a running container, retain its backup and open 账户评估 in the native administrator sidebar.
+The self-contained installer carries native and required Linux container payloads.
+Users select Docker/Compose, a native program, or supported Apple container installation and retain the original program backup.
 Builds download source and prepare dependencies in a temporary workspace. Rebuild the patched native frontend before embedding it.
-Only the compressed server and required license texts enter the installer payload.
+Only compressed application programs and required license texts enter the installer payload.
 The build assembles the installer in a temporary Go module and stages the native `tests/test_installer_test.go` suite there.
 Keep installer tests out of production source and keep the raw server as a local build output.
 
 Private configuration and reusable dependency caches remain outside source and package inputs.
 Keep user instructions in `README.md`. Do not create a separate `docs/` tree or source overlay.
+
+Each plugin and the template carry the complete build script, installer source, flat common tests, and license inputs.
+Local builds and CI both run `python3 scripts/build.py` without arguments or external build Actions.
+Standalone roots apply only their own patches. The parent applies active submodule patches in sorted order.
+Keep equivalent build-kit files aligned. Run common cases once per build, not once per combined plugin.
+All repositories produce versioned executable pairs under `dist/build/<os>-<arch>/`.
+Names use `sub2api-plugins-[installer-]<upstream-tag>-<os>-<arch>`, where `installer-` is present only for installers.
+Windows programs add `.exe`. CI uploads each file directly, with its basename as the artifact name.
+Prepare PTerm and its dependencies in the temporary installer module. Do not add a root Go module.
+Keep terminal messages under `scripts/installer/`, separate from installation decisions.
+
+The template submodule lives at `plugins/sub2api-plugin-template` and has a Chinese usage README.
+Its empty patches directory excludes it from combined builds. Its standalone build produces unmodified upstream Sub2API.
 
 The first plugin lives at `plugins/codex-candy-eval`.
 Its existing numbered filenames sort into the original order below. Other plugins need no numeric prefix or series file.

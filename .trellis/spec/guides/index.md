@@ -6,6 +6,21 @@
 
 Do not create or modify documentation or manifest files unless the user explicitly requests them.
 Trellis-managed artifacts are exempt.
+Use the project's actual copyright holder in its license. Do not copy an unrelated project's attribution.
+Preserve original upstream and dependency attribution in their respective licenses.
+Sub2API patch adaptations and the plugin template use `LGPL-3.0-or-later`.
+Keep each plugin's root `LICENSE` limited to the unmodified standard LGPLv3 text, including its original FSF copyright.
+Do not add project scope statements, attribution preambles, or explanations to these files.
+Retain inherited MIT notices and required GPL/LGPL texts under `licenses/`.
+The parent's independent build/installer code retains MIT. Keep its root `LICENSE` limited to MIT text and copyright attribution.
+State the license scope in its Chinese root `README.md`, with links to `LICENSE` and `licenses/`.
+
+## Temporary Caches
+
+Prevent workspace cache files when the command supports it. For Python, use `PYTHONDONTWRITEBYTECODE=1` or `python3 -B`.
+Immediately remove temporary caches created by the current command, including after failure.
+Examples include `__pycache__`, `.pyc`, `.pytest_cache`, `.mypy_cache`, and `.ruff_cache`.
+Preserve reusable dependency caches, user data, and resources used by active processes.
 
 ## GitHub Credential Use
 

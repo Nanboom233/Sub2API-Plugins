@@ -4,3 +4,6 @@
 [submodule "plugins/sub2api-quota-extension"]
 	path = plugins/sub2api-quota-extension
 	url = https://github.com/Nanboom233/sub2api-quota-extension
+[submodule "plugins/sub2api-plugin-template"]
+	path = plugins/sub2api-plugin-template
+	url = https://github.com/Nanboom233/sub2api-plugin-template
