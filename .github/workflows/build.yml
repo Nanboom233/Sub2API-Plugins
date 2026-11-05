@@ -1,4 +1,5 @@
 name: Build
+run-name: ${{ github.event_name == 'workflow_dispatch' && format('Build {0} · {1}', inputs.upstream_tag, github.ref_name) || github.event.pull_request.title }}
 
 on:
   pull_request:

@@ -35,6 +35,8 @@ Both local builds and CI use this command. There is no CI adapter or external bu
 Actions exposes a required string input named `upstream_tag` for manual runs, with default `v0.2.19`. The user can replace it before the run starts.
 Manual runs also expose five platform booleans, all true: `linux_amd64`, `linux_arm64`, `darwin_amd64`, `darwin_arm64`, and `windows_amd64`.
 The `release` boolean defaults false. Manual Release publication inherits the build's actual upstream tag. There is no `release_tag` input.
+Manual run titles use `Build <upstream_tag> · <ref_name>` without a run number. PR runs use their PR title.
+Top-level `run-name` reads existing inputs and GitHub context. Keep `name: Build` and add no title input.
 Pass the requested value through `UPSTREAM_TAG` in the process environment. Do not interpolate user input into shell commands.
 Local builds use the same entry and environment input, for example `UPSTREAM_TAG=v0.2.19 python3 scripts/build.py`.
 Pull-request builds resolve the latest official release through the public upstream release API.
