@@ -28,6 +28,8 @@ Use plugin `tests/test_ui.cjs` directly for existing native page assertions.
 Manual `tests/native_*` helpers belong to the evaluation plugin and stay outside automatic `test_*` discovery.
 Use [the native installer tests](../../../tests/test_installer_test.go) for shared transactions and changed native/Apple control paths.
 Run them in the temporary host-platform installer module. Keep cross-compilation flags separate from host tests.
+The fake-Docker `writeState` helper must write, close, and rename a unique temporary file beside `state.json`.
+Readers must see complete JSON even when a timeout kills the writer. Keep malformed-state failures visible in `readState`.
 Native Go suites use flat `test_*_test.go` files and `// sub2api-package:` annotations for temporary package placement.
 Execute each discovered Go case once with native `go test`. Preserve standalone Go program support and direct Python/CJS execution.
 Native Vue cases use flat `tests/test_*.test.ts` suites and the downloaded frontend's existing Vitest runtime.
@@ -43,6 +45,10 @@ Do not create another suite for retired interfaces.
 Replace obsolete version allowlist assertions with advisory-warning assertions instead of retaining both sets.
 Test shared parsing and confirmation once. Do not multiply version cases by probe positions and confirmation inputs.
 The default build already executes test entries. Do not rerun unchanged entries as a separate acceptance gate.
+One CI build job runs shared checks once and compiles selected programs and installers sequentially.
+Restore dependency caches once after source download. Upload only final executable pairs after the complete build succeeds.
+Use native Actions logs and status. Do not add custom summaries, duplicate log artifacts, or intermediate artifact transfers.
+Use builder output assembly and native Action/job failures instead of duplicate workflow output checks or successful-upload status aggregation.
 
 Preserve native administrator authentication, account transport, cancellation, history errors, and settings storage.
 Keep tests synthetic. Do not expose credentials in fixtures, logs, or reports.
@@ -52,7 +58,7 @@ Keep generated output outside the user package and work commits.
 
 Compatibility profiles, legacy migrations, shims, and multi-version adapters are retired mechanisms.
 Gateway private keys, directed billing, activation, maintenance, and universal builders are retired mechanisms.
-Race, coverage, full-suite, architecture matrices, and source-resource parity are not current acceptance requirements.
+Race, coverage, full-suite, runtime architecture matrices, and source-resource parity are not current acceptance requirements.
 
 ## Commit and Finish Work
 

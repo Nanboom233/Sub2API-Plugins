@@ -7,15 +7,15 @@
 
 | 插件 | 说明 |
 | --- | --- |
-| [codex-candy-eval](plugins/codex-candy-eval) | 账户评估、自动巡检和通知 |
-| [sub2api-quota-extension](plugins/sub2api-quota-extension) | API Key 账户额度查询和自定义额度脚本 |
-| [sub2api-plugin-template](plugins/sub2api-plugin-template) | 创建新插件的模板 |
+| [codex-candy-eval](https://github.com/Nanboom233/codex-candy-eval) | 账户评估、自动巡检和通知 |
+| [sub2api-quota-extension](https://github.com/Nanboom233/sub2api-quota-extension) | API Key 账户额度查询和自定义额度脚本 |
+| [sub2api-plugin-template](https://github.com/Nanboom233/sub2api-plugin-template) | 创建新插件的模板 |
 
 ## Installation
 
 在本仓库的 [Actions](../../actions/workflows/build.yml) 中，打开一次成功的 `Build` 运行，按运行安装器的主机平台下载对应文件。
 
-推送和 pull request 触发的构建使用上游最新正式 Release 的 tag。
+pull request 触发的构建使用上游最新正式 Release 的 tag。推送不会触发构建。
 
 > [!TIP]
 > 如需构建指定版本，在 Actions 中选择 **Run workflow**，并在 `upstream_tag` 中填写准确的上游 tag。默认值为 `v0.2.19`。
