@@ -171,22 +171,8 @@ jobs:
               assets+=("dist/build/$platform/sub2api-plugins-${component}${UPSTREAM_TAG}-${platform}${suffix}")
             done
           done
-          title="Sub2API-Plugin ${SOURCE_SHA:0:7} (v${UPSTREAM_TAG#v})"
-          if old_assets="$(gh release view "$UPSTREAM_TAG" --json assets --jq '.assets[].name' 2>/dev/null)"; then
-            notes="$(gh api 'repos/{owner}/{repo}/releases/generate-notes' \
-              -f tag_name="$UPSTREAM_TAG" \
-              -f target_commitish="$SOURCE_SHA" \
-              --jq .body)"
-            gh release edit "$UPSTREAM_TAG" --title "$title" --notes "$notes"
-            while IFS= read -r asset; do
-              if [[ -n "$asset" ]]; then
-                gh release delete-asset "$UPSTREAM_TAG" --yes -- "$asset"
-              fi
-            done <<< "$old_assets"
-            gh release upload "$UPSTREAM_TAG" "${assets[@]}"
-          else
-            gh release create "$UPSTREAM_TAG" "${assets[@]}" \
-              --target "$SOURCE_SHA" \
-              --title "$title" \
-              --generate-notes
-          fi
+          gh release delete "$UPSTREAM_TAG" --cleanup-tag --yes 2>/dev/null || true
+          gh release create "$UPSTREAM_TAG" "${assets[@]}" \
+            --target "$SOURCE_SHA" \
+            --title "Sub2API-Plugin ${SOURCE_SHA:0:7} (v${UPSTREAM_TAG#v})" \
+            --generate-notes
