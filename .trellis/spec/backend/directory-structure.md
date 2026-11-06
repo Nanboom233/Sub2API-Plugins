@@ -53,6 +53,7 @@ Keep installer tests out of production source and keep the raw server as a local
 
 Private configuration and reusable dependency caches remain outside source and package inputs.
 Keep user instructions in `README.md`. Do not create a separate `docs/` tree or source overlay.
+Only the parent repository owns `.trellis/` and AI-assistant scaffolding. Keep plugin submodules free of nested `.trellis/` or agent directories.
 
 Each plugin and the template carry the complete build script, installer source, flat common tests, and license inputs.
 Local builds and CI both run `python3 scripts/build.py` without arguments or external build Actions.
@@ -94,7 +95,7 @@ The quota plugin lives at `plugins/sub2api-quota-extension`.
 Its [production patch](../../../plugins/sub2api-quota-extension/patches/quota-extension.patch) extends native account usage.
 See [API Key Account Usage](./api-key-quota.md) for its service and frontend contracts.
 
-Evidence: [repository layout and private configuration](../../../AGENTS.md).
+Evidence: [repository ignore rules](../../../.gitignore) and [documentation rules](../guides/index.md#documentation-and-manifest-files).
 
 ---
 

@@ -85,7 +85,7 @@ Do not mix task or workspace bookkeeping into an unrelated work commit. Do not r
 5. Review the complete staged diff.
 6. Draft an English Conventional Commit with an imperative subject.
 7. Keep the subject within 74 characters.
-8. Wrap body lines at 72 characters to follow `AGENTS.md`.
+8. Wrap body lines at 72 characters.
 9. Check the effective Git signing policy.
 10. If the signing policy is unset, ask the user to choose signed or unsigned.
 11. Show the exact file list, message, and signing behavior.
@@ -131,6 +131,6 @@ References:
 - [Lifecycle configuration](../../config.yaml): artifact auto-commit settings.
 - [Archive implementation](../../scripts/common/task_store.py): scoped task commits.
 - [Session implementation](../../scripts/add_session.py): scoped workspace commits.
-- [Repository commit rules](../../../AGENTS.md): imperative subjects and body wrapping.
+- [Backend documentation rules](./index.md#documentation-rules): English specifications and hybrid commit workflow.
 
 The user clarified this ownership boundary during the bootstrap task. Native artifact handling is not an exception to Trellis. It is part of the hybrid workflow.

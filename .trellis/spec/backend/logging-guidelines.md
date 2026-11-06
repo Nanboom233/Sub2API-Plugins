@@ -73,6 +73,6 @@ Examples: stream errors in the [evaluation core](../../../plugins/codex-candy-ev
 Inspection settings reads omit notification secrets and return configured flags.
 Empty secret updates retain saved values. Do not expose saved values in screenshots or reports.
 
-Evidence: [private configuration rules](../../../AGENTS.md), [native inspection](../../../plugins/codex-candy-eval/patches/0005-inspection.patch), and [UI checks](../../../plugins/codex-candy-eval/tests/test_ui.cjs).
+Evidence: [private configuration ignore rules](../../../.gitignore), [native inspection](../../../plugins/codex-candy-eval/patches/0005-inspection.patch), and [UI checks](../../../plugins/codex-candy-eval/tests/test_ui.cjs).
 
 Current errors can include upstream text. Check them for sensitive content before you share a report. This repository does not provide a universal redaction layer.
