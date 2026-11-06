@@ -1,0 +1,6 @@
+{"file": ".trellis/spec/guides/index.md", "reason": "Verify compliance with project documentation and cache rules"}
+{"file": ".trellis/spec/backend/index.md", "reason": "Verify ASD-STE100 compliance and backend index links"}
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "Verify native plugin directory layout and updated evidence links"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Verify quality checks and updated commit rule links"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Verify frontend specification index completeness and status"}
+{"file": ".trellis/tasks/00-bootstrap-guidelines/research/eval-trellis-migration.md", "reason": "Verify all 482 Trellis/AI files and migrated archives against research inventory"}

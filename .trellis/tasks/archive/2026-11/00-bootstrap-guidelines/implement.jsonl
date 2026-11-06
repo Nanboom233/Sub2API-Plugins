@@ -1,0 +1,10 @@
+{"file": ".trellis/spec/guides/index.md", "reason": "Project-wide documentation, cache, and credential rules"}
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend spec index and ASD-STE100 documentation standard"}
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "Multi-plugin directory structure and native plugin layout"}
+{"file": ".trellis/spec/backend/logging-guidelines.md", "reason": "Logging guideline with legacy AGENTS.md reference to update"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Quality and commit guidelines with legacy AGENTS.md reference to update"}
+{"file": ".trellis/spec/backend/api-key-quota.md", "reason": "Source of truth for native Vue quota components and Vitest staging"}
+{"file": ".trellis/spec/backend/runtime-installation.md", "reason": "Source of truth for embedded evaluation web UI and iframe integration"}
+{"file": ".trellis/spec/backend/native-inspection.md", "reason": "Source of truth for inspection UI settings, secret placeholders, and switches"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend specification index to update and align with new guides"}
+{"file": ".trellis/tasks/00-bootstrap-guidelines/research/eval-trellis-migration.md", "reason": "Complete inventory of eval Trellis artifacts and frontend spec architecture"}

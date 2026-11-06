@@ -1,0 +1,29 @@
+{
+  "id": "00-bootstrap-guidelines",
+  "name": "00-bootstrap-guidelines",
+  "title": "Bootstrap Guidelines and Migrate Eval Trellis Artifacts",
+  "description": "Populate project development guidelines and migrate all codex-candy-eval Trellis artifacts into the main repository so the plugin returns to its native structure.",
+  "status": "completed",
+  "dev_type": "docs",
+  "scope": null,
+  "package": null,
+  "priority": "P1",
+  "creator": "sub2api-plugins",
+  "assignee": "sub2api-plugins",
+  "createdAt": "2026-10-22",
+  "completedAt": "2026-11-07",
+  "branch": "main",
+  "base_branch": null,
+  "worktree_path": null,
+  "commit": "6009fdd",
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    ".trellis/spec/backend/",
+    ".trellis/spec/frontend/"
+  ],
+  "notes": "Completed frontend guidelines and migrated eval Trellis archives/journals. Signed commits: eval 42c27a6, parent 6009fdd.",
+  "meta": {}
+}
