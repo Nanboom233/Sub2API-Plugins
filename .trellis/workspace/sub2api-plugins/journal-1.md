@@ -142,3 +142,35 @@ Synchronize eval and inspection, correct licensing, deliver five-platform standa
 ### Status
 
 [OK] **Completed**
+
+
+## Session 5: Bootstrap frontend guidelines and migrate eval Trellis artifacts
+<!-- trellis-session: v=2 fp=0c6174676ca959d5 -->
+
+**Date**: 2026-11-07
+**Task**: Bootstrap frontend guidelines and migrate eval Trellis artifacts
+**Branch**: `main`
+
+### Summary
+
+Populate .trellis/spec/frontend/ guidelines, migrate historical eval task archives and workspace journals into the parent repository, and restore codex-candy-eval to the native plugin layout.
+
+### Main Changes
+
+- Populate all seven .trellis/spec/frontend/ files with source-backed rules and examples for native Vue and embedded evaluation web components, and update stale AGENTS.md references in backend specs.
+- Migrate all seven 2026-10 archived tasks (renaming eval's bootstrap archive to 10-11-eval-bootstrap-guidelines) and the codex-candy-eval-plugin workspace journal into the parent repository.
+- Remove .trellis/, .claude/, .codex/, .devin/, AGENTS.md, and .gitattributes from plugins/codex-candy-eval, align .gitignore with sub2api-plugin-template, and track .trellis/.template-hashes.json and .trellis/workspace/index.md in the parent repository.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `6009fdd` | docs(trellis): populate frontend specs and migrate eval trellis archives |
+
+### Testing
+
+- [OK] Verified 2026-10 archive listing, byte-identical journal migration, zero template placeholders in .trellis/spec/, ASD-STE100 compliance, and native 48-file layout in plugins/codex-candy-eval.
+
+### Status
+
+[OK] **Completed**
