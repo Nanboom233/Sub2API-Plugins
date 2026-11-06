@@ -108,3 +108,37 @@ Add custom quota scripts, inline draft tests, native reset tooltips, and account
 ### Status
 
 [OK] **Completed**
+
+
+## Session 4: Synchronize plugins, inspection, licensing, and artifact CI
+<!-- trellis-session: v=2 fp=ea7b45266acf35d9 -->
+
+**Date**: 2026-11-06
+**Task**: Synchronize plugins, inspection, licensing, and artifact CI
+**Branch**: `feat/plugin-build-inspection`
+
+### Summary
+
+Synchronize eval and inspection, correct licensing, deliver five-platform standalone and combined installers, and unify cached single-job CI with SDK uploads and delete-and-recreate Release publication.
+
+### Main Changes
+
+- Synchronize eval with upstream v0.4.4, update inspection defaults, secret placeholders, and verdict notifications, and correct LGPLv3/MIT license scopes.
+- Deliver five-platform standalone and combined installers and add the public sub2api-plugin-template repository and submodule.
+- Unify all four build.yml workflows into one cached build-release job with SDK raw artifact uploads and gh release delete --cleanup-tag --yes before gh release create.
+- Squash all 11 CI commits across all four repositories into one signed commit per repository (eval 4e6d167, quota a6c145c, template b3c40dd, parent 2fc4e90).
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `66f17f75726c3fadd9a5bf8d0bc2924378d755e4` | feat(build): deliver portable combined plugin installers |
+| `2fc4e904eb83f13e63a833d4a9be34e7f77f3a46` | feat(ci): add cached single-job platform builds and release publication |
+
+### Testing
+
+- [OK] Default combined five-platform build, plugin Go/Vue suites, common builder/installer suites, YAML/Bash checks, and four-repository hosted CI runs passed.
+
+### Status
+
+[OK] **Completed**
