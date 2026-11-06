@@ -1,0 +1,7 @@
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Reuse valid checks and avoid extra test gates."}
+{"file":".trellis/spec/guides/index.md","reason":"Verify README scope and project versus upstream copyright attribution."}
+{"file":".trellis/spec/backend/minimal-linux-delivery.md","reason":"Check R22/R23 workflow changes while preserving published build and SDK upload behavior. The current task supersedes discovered paths and separate Release-job rules."}
+{"file":".trellis/tasks/10-30-inspection-settings-attribution/research/ci-step-consolidation.md","reason":"Verify the combined job uses job-scoped write permission and a conditional Release step. Do not restore the old separate-job recommendation."}
+{"file":".trellis/tasks/10-30-inspection-settings-attribution/research/cache-load-conclusion.md","reason":"Review proposed R22 effective fixed paths, setup outputs, removal of Locate/steps.paths, one restore/save pair, and unchanged native cache failure/success handling."}
+{"file":".trellis/tasks/10-30-inspection-settings-attribution/research/cache-path-configuration.md","reason":"Reuse completed actual pnpm12 and Go env evidence. Do not add tests or full builds for the workflow-only path correction."}
+{"file":".trellis/tasks/10-30-inspection-settings-attribution/research/release-recreation.md","reason":"Verify simplified Publish Release step uses gh release delete --cleanup-tag --yes followed by gh release create without extra git push helpers or branching."}

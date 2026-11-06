@@ -1,0 +1,28 @@
+{
+  "id": "inspection-settings-attribution",
+  "name": "inspection-settings-attribution",
+  "title": "Synchronize plugins, inspection, licensing, and artifact CI",
+  "description": "Synchronize eval and inspection, correct licensing, deliver complete standalone/combined artifact-CI build kits, and simplify repeated output with existing tools.",
+  "status": "completed",
+  "dev_type": "fullstack",
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "sub2api-plugins",
+  "assignee": "sub2api-plugins",
+  "createdAt": "2026-10-30",
+  "completedAt": "2026-11-06",
+  "branch": "feat/plugin-build-inspection",
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": "2fc4e90",
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "10-31-installation-methods"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "All 11 CI commits since 562fdc2 / 11fe7c9 / 2c1f79f / 350b967 are squashed into one signed commit per repository and pushed to origin/main: eval 4e6d167, quota a6c145c, template b3c40dd, parent 2fc4e90.",
+  "meta": {}
+}
