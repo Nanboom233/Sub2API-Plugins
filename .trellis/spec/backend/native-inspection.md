@@ -1,9 +1,9 @@
-# Native Candy Inspection
+# Native Candy and Fingerprint Inspection
 
 ## 1. Scope / Trigger
 
-Use this contract for automatic Candy inspection inside the Sub2API process.
-The coordinator reuses the native Candy runtime, account services, history, and cancellation.
+Use this contract for automatic Candy and Fingerprint inspection inside the Sub2API process.
+The coordinator reuses the native evaluation runtime, account services, history, and cancellation.
 Inspection uses the Candy page's saved group and account filters with current native membership.
 Its model, effort, count, confirmations, and recovery flow remain independent from manual evaluations.
 Manual row, selected-account, and fixed-count batch tests retain their behavior.
@@ -11,7 +11,7 @@ Manual row, selected-account, and fixed-count batch tests retain their behavior.
 Owners:
 
 - Plugin `patches/0005-inspection.patch`: coordinator, settings type, notifications, native settings service, and administrator handlers.
-- Plugin `patches/0001-evaluation-core.patch`: inspection-only admission before each Candy request.
+- Plugin `patches/0001-evaluation-core.patch`: inspection-only admission before each Candy or Fingerprint request.
 - Plugin `patches/0006-evaluation-ui.patch`: settings form, account participation switches, and runtime controls.
 - Plugin `patches/0007-sub2api-integration.patch`: routes, account metadata preservation, initialization, and shutdown integration.
 - Plugin `tests/test_*_test.go`: actual native package tests. Plugin `tests/test_ui.cjs`: native page assertions.
@@ -55,15 +55,20 @@ Each value contains the JSON representation of that field.
 | `enabled`, `adjust_priority`, `control_models` | Boolean, false |
 | `notify_enabled` | Boolean, true when absent. Preserve a stored false. |
 | `degraded_remove_models` | String array, `gpt-6.1-sol`, `gpt-6-sol`, `gpt-5.6-sol`, `gpt-6-astra`, `gpt-6.1-terra` |
-| `model`, `effort` | String, `gpt-6.1-sol` and `low` |
+| `model`, `effort`, `test_type` | String, `gpt-6.1-sol`, `low`, and `candy` (`candy` or `fingerprint`) |
 | `max_tests_per_account` | Integer, 3 |
 | `min_wait_minutes`, `max_wait_minutes` | Integer, 15 and 35 |
+| `include_patterns`, `exclude_patterns` | String arrays, empty. Validated with `path.Match` and matched against account `Name` and `Email`. |
 | `group_id` | Integer, 0 until the Candy page selects a group |
-| `account_type`, `account_plan` | String, `all` for both. Shared Candy filters. |
+| `account_type` | String, `all`. Accept credential types alone or `<platform>:<type>`. |
+| `account_plan` | String, `all`. Shared Candy subscription filter. |
 | `enabled_only` | Boolean, false. Shared Candy enabled-account filter. |
 | `normal_priority`, `degraded_priority` | Integer, 10 and 99. Normal priority must be at least 1. |
 | `ntfy_server` | String, `https://ntfy.sh` |
 | `ntfy_topic`, `ntfy_username`, `ntfy_password`, `bark_url` | String, empty |
+
+Credential type filters accept `oauth`, `setup-token`, `apikey`, and `upstream`, with optional platform prefixes.
+The `all` filter accepts every eligible credential type.
 
 Public responses clear `ntfy_password` and `bark_url`.
 They return `ntfy_password_configured` and `bark_url_configured` booleans.
@@ -71,20 +76,21 @@ These flags are not persisted.
 Empty secret updates retain the saved values.
 A failed save leaves active settings unchanged.
 
-The fourth page tab is `设置`.
+The fifth page tab is `设置` (after `糖果`, `指纹`, `鹈鹕`, and `SIWC`).
 Use native settings cards, visible labels, units, and inline validation.
 Keep explanatory paragraphs out of the form.
 Use a visible model dropdown with raw suggestions and a custom literal-model path.
 Use current-group model suggestions from the manual catalog without another all-account model discovery.
 Preserve newer unsaved model edits during discovery.
-Include/exclude account controls, fields, persistence keys, and filtering logic are removed.
+Place `模型`, `推理强度`, and `检查方式` (`candy` / `fingerprint`) on the first row of `#inspection-auto-fields`.
+Place `包含账户通配符（INCLUDE）` and `排除账户通配符（EXCLUDE）` on the third row of `#inspection-auto-fields`.
 Remove the independent Free switch. Use the Candy plan filter and native availability and busy rules.
 Hide normal and degraded priority fields while automatic adjustment is off.
 Hide automatic inspection configuration fields while scheduling is off.
 Remove visible switch captions. Keep accessible names on header switches.
 Keep collapsed configuration values during automatic saves.
 The settings page has no save button or account list.
-Show account progress, results, and existing Candy history only on the Candy tab.
+Show account progress and results on the Candy and Fingerprint tabs.
 Keep inspection runtime controls available when automatic scheduling is off.
 Keep immediate-inspection and stop buttons on the settings tab, outside its collapsed configuration.
 Automatic saves show no saving, saved, or unsaved-change captions. Preserve actual validation and save failures.
@@ -95,11 +101,11 @@ Do not show a completed-phase caption or stale completed progress. Hide empty st
 Read an existing nonpositive stored normal priority as default 10 before validating loaded settings.
 New writes below 1 fail validation. The read does not write the database.
 Hide empty idle status and runtime failure captions.
-Keep running progress and Candy history/results.
-Keep `下次巡检：` and its scheduled time in the Candy account header with `账户` and `仅启用`.
+Keep running progress and Candy or Fingerprint history and results.
+Place `#inspection-status` (`下次巡检：`, phase, and progress) in the Candy or Fingerprint header matching `test_type`.
 Add only the account-level `启用自动巡检` column to the Candy list. Keep the native account enabled column separate.
 Do not add a separate inspection card or result columns.
-Keep other evaluation headers unchanged. Wrap the Candy header on narrow screens without horizontal overflow.
+Keep other evaluation headers unchanged. Wrap the credential header on narrow screens without horizontal overflow.
 Align both Candy row switches on the same baseline at narrow widths, regardless of history length.
 Use the gray `已配置，留空保持不变` ntfy password placeholder when `ntfy_password_configured` is true.
 Start with an empty input on a fresh page load. Retain entered ntfy secrets as masked values during that page session.
@@ -159,7 +165,7 @@ Restart reloads configuration and schedules a fresh wait without restoring an in
 State fields are `enabled`, `running`, `cancelling`, `phase`, `next_run_at`, `started_at`, `finished_at`, `total`, `done`, `error`, and `results`.
 Phases are `idle`, `testing`, `recovery_wait`, `completed`, `cancelled`, and `failed`.
 Results contain account identity, original priority, optional target priority, run IDs, test count, outcome, and separate evaluation/notification errors.
-Round state stays in memory. Candy records use the existing history file. Account verdicts use native account storage.
+Round state stays in memory. Candy and Fingerprint records use the existing history file. Account verdicts use native account storage.
 Keep backend errors, authentication handling, and polling recovery after removing the page error prompts.
 
 ### Account participation
@@ -173,6 +179,7 @@ Apply participation to scheduled and immediate coordinator rounds. Manual Candy 
 An in-flight inspection request can finish after opt-out. Check participation before each later send and before a priority update.
 This includes retry sends after backoff. Run the callback outside the global evaluation mutex.
 Use an inspection-only pre-send callback in the Candy worker. Do not hold the runtime mutex during account reads.
+Apply that callback to Fingerprint challenges and retries too.
 Intentional opt-out retains completed results and ends as `unchanged`, without a synthetic evaluation error.
 Do not append a synthetic history result or increment progress for an intentional pre-send stop.
 Do not cancel unrelated accounts when one account opts out.
@@ -220,22 +227,35 @@ Model control adds no scheduler state, background synchronization, write retries
 ### Account tests and priority changes
 
 Read current members of the saved native group and apply the shared Candy type and plan filters.
+Support all Sub2API account platforms and credential types through the native sender.
+Trim and deduplicate include/exclude patterns. Match account names and email addresses with case-sensitive `path.Match`.
+An empty include list accepts all otherwise eligible accounts. A matching exclude pattern always excludes the account.
+
 Use the native parent-plan enrichment for shadow accounts during selection and the pre-update account reread.
 An account's own plan takes precedence. Otherwise, use its parent's plan, as the Candy account API does.
 Apply native availability and the existing account busy state. Do not replace a missing group with all accounts.
-Pass the configured model literally through the existing native sender.
+Pass the configured model to the existing native sender without account-configured mappings.
+Retain that sender's native protocol normalization.
 
-Each eligible account gets one first test.
-One logical test can contain up to three request attempts. Only its final completed answer counts toward confirmation.
+Each eligible account gets one first test in the selected check mode.
+Candy requires a completed, error-free result. Its `ok` field determines the normal or degraded answer.
+
+Fingerprint requires error-free `completed` or `partial` status with a non-null attribution.
+Compare `FingerprintModelID(Model)` with `FingerprintModelID(Attribution.Prediction)` for normal or degraded answers.
+Fingerprint runs one three-challenge evaluation per account with concurrency 1 and applies transitions without confirmation rounds.
+
+Candy tests and individual Fingerprint challenges permit up to three request attempts.
+Only valid final test outcomes count toward confirmation.
 Valid wrong Candy text does not retry. Request failures do not become confirmation answers.
 Keep the existing 30-minute phase coordinator wait, then cancel and drain active workers.
 Do not extend that wait to guarantee three full ten-minute attempts.
+
 After that test, reread the account verdict before selecting confirmations. Do not classify from actual priority or the account-list snapshot.
-If the verdict is degraded and the answer remains wrong, stop after one test.
-If the verdict is normal and the answer is correct, stop after one test.
+If the saved verdict is degraded and the test indicates degradation, stop after one test.
+If the saved verdict is normal and the test indicates normal operation, stop after one test.
 Both rules apply with automatic priority adjustment on or off.
 Keep the original result priority as historical data. Preserve the fresh actual-priority baseline for existing confirmation and update checks.
-Only a possible normal/degraded transition starts up to `max_tests_per_account - 1` confirmations.
+In Candy mode, only a possible normal/degraded transition starts up to `max_tests_per_account - 1` confirmations.
 Recovery confirmation waits 240 seconds.
 Require the full configured count of valid, complete, matching outcomes before changing the verdict.
 Errors, cancellation, incomplete results, mixed outcomes, or intentional opt-out prevent a verdict transition.
@@ -264,7 +284,9 @@ Notification failures retain `notification_error` and do not reverse saved verdi
 | Missing administrator authentication | Native authentication failure |
 | Negative group ID, or automatic inspection enabled with group ID 0 | Reject settings with 400 |
 | Start without a selected group | Reject the start. Never select all accounts. |
-| Account type is not `all`, `oauth`, or `apikey`, or plan is empty | Reject settings with 400 |
+| Account type has an unsupported platform or credential type, or plan is empty | Reject settings with 400 |
+| Check mode is neither `candy` nor `fingerprint` | Reject settings with 400 |
+| Include or exclude pattern has invalid `path.Match` syntax | Reject settings with 400 |
 | Invalid model or test count outside 1–10 | Reject settings with 400 |
 | Invalid removal model, wildcard, or reserved `blacklist` entry | Reject settings with 400 |
 | Wait below one minute, reversed bounds, or unrepresentable duration | Reject settings with 400 |
@@ -318,6 +340,7 @@ Retain manual fixed counts for opted-out accounts. Reuse existing scheduling, se
 Follow the active task's bounded check scope. Add no separate restart, copy, DTO, custom-priority, or browser matrices for backend-only changes.
 Reuse valid evidence for unchanged inputs.
 Extend settings and metadata fixtures for model-control fields and pending-removal preservation.
+Check mode-aware `#inspection-status` placement between `#candy-credentials` and `#fp-credentials` and single-run Fingerprint transitions.
 Use focused account-helper cases for partial/final removal, native admission, recovery, skipped entries, and failed compound writes.
 Reuse the existing adjustment-off lifecycle and unchanged sender evidence. Add no separate restart or sender matrix.
 Extend existing UI cases for the array field and widget. Compare the actual render with the native selector.

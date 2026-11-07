@@ -7,7 +7,7 @@
 
 | 插件 | 说明 |
 | --- | --- |
-| [codex-candy-eval](https://github.com/Nanboom233/codex-candy-eval) | 账户评估、自动巡检和通知 |
+| [codex-candy-eval](https://github.com/Nanboom233/codex-candy-eval) | 跨供应商账户评估（糖果、指纹、鹈鹕、SIWC）、自动巡检与通知 |
 | [sub2api-quota-extension](https://github.com/Nanboom233/sub2api-quota-extension) | API Key 账户额度查询和自定义额度脚本 |
 | [sub2api-plugin-template](https://github.com/Nanboom233/sub2api-plugin-template) | 创建新插件的模板 |
 
@@ -18,31 +18,31 @@
 pull request 触发的构建使用上游最新正式 Release 的 tag。推送不会触发构建。
 
 > [!TIP]
-> 如需构建指定版本，在 Actions 中选择 **Run workflow**，并在 `upstream_tag` 中填写准确的上游 tag。默认值为 `v0.2.19`。
+> 如需构建指定版本，在 Actions 中选择 **Run workflow**，并在 `upstream_tag` 中填写准确的上游 tag。默认值为 `v0.2.20`。
 
-文件名中包含该次构建使用的上游 tag。下表以 `v0.2.19` 为例，下载和运行时请替换为实际 tag：
+文件名中包含该次构建使用的上游 tag。下表以 `v0.2.20` 为例，下载和运行时请替换为实际 tag：
 
 | 主机 | Artifact |
 | --- | --- |
-| Linux x86_64 | `sub2api-plugins-installer-v0.2.19-linux-amd64` |
-| Linux ARM64 | `sub2api-plugins-installer-v0.2.19-linux-arm64` |
-| macOS Intel | `sub2api-plugins-installer-v0.2.19-darwin-amd64` |
-| macOS Apple Silicon | `sub2api-plugins-installer-v0.2.19-darwin-arm64` |
-| Windows x86_64 | `sub2api-plugins-installer-v0.2.19-windows-amd64.exe` |
+| Linux x86_64 | `sub2api-plugins-installer-v0.2.20-linux-amd64` |
+| Linux ARM64 | `sub2api-plugins-installer-v0.2.20-linux-arm64` |
+| macOS Intel | `sub2api-plugins-installer-v0.2.20-darwin-amd64` |
+| macOS Apple Silicon | `sub2api-plugins-installer-v0.2.20-darwin-arm64` |
+| Windows x86_64 | `sub2api-plugins-installer-v0.2.20-windows-amd64.exe` |
 
 下载的文件无需解压，可直接运行。以下示例使用 x86_64 安装器，其他平台请替换为对应文件名。
 
 Linux 和 macOS 需要先添加执行权限：
 
 ```sh
-chmod +x sub2api-plugins-installer-v0.2.19-linux-amd64
-./sub2api-plugins-installer-v0.2.19-linux-amd64
+chmod +x sub2api-plugins-installer-v0.2.20-linux-amd64
+./sub2api-plugins-installer-v0.2.20-linux-amd64
 ```
 
 Windows（PowerShell）：
 
 ```powershell
-.\sub2api-plugins-installer-v0.2.19-windows-amd64.exe
+.\sub2api-plugins-installer-v0.2.20-windows-amd64.exe
 ```
 
 根据现有部署方式选择安装模式：
@@ -120,7 +120,7 @@ python3 scripts/build.py
 未设置 `UPSTREAM_TAG` 时，脚本使用上游最新正式 Release 的 tag。如需构建指定版本，设置 `UPSTREAM_TAG`：
 
 ```sh
-UPSTREAM_TAG=v0.2.19 python3 scripts/build.py
+UPSTREAM_TAG=v0.2.20 python3 scripts/build.py
 ```
 
 产物位于：

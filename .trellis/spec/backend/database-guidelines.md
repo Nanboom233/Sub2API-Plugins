@@ -3,12 +3,12 @@
 ## Active Sub2API storage
 
 Sub2API stores inspection settings in its existing PostgreSQL `settings` table.
-The three evaluation histories remain in one JSON file.
+The four evaluation histories remain in one JSON file.
 Tasks, progress, inspection summaries, and the next run time stay in memory.
 
 ### 1. Scope / Trigger
 
-Use native settings persistence for Candy inspection configuration.
+Use native settings persistence for Candy and Fingerprint inspection configuration.
 Use native account `extra` for inspection participation, verdict, and actual removed-model names.
 Use the existing JSON store for evaluation history only.
 
@@ -57,26 +57,30 @@ Keep current administrator mappings, remove the reserved identity placeholder, a
 No extra table, snapshot, scheduling flag, original scheduling value, or restore phase is necessary.
 See [Native Candy Inspection](./native-inspection.md) for confirmed-state application and placeholder behavior.
 
-Write root field `schema_version: 2` and history keys `results`, `fingerprints`, and `pelicans`.
+Write root field `schema_version: 3` and history keys `results`, `fingerprints`, `pelicans`, and `siwc`.
 Each map uses a native account ID as a decimal string.
 Pelican records store `variant` as `original` or `all-in-one`. Records can include optional `attempts`.
 Read fingerprints as raw JSON until the root marker identifies the current format.
+
 An absent marker selects legacy loading. Decode only Candy and Pelican. Start the fingerprint map empty.
 Discard obsolete fingerprint and ModelTrace payloads without per-record conversion.
-Schema 1 retains all three current maps. Both older formats mark retained Pelican records as `original`.
+
+Schema 1 and Schema 2 retain all existing maps. Formats older than Schema 2 mark retained Pelican records as `original`.
 Assign loaded maps only after retained fields decode successfully.
-Before migration, copy the original bytes to same-directory `history.v0.json` or `history.v1.json` with mode `0600`.
+
+Before migration, copy the original bytes to same-directory `history.v0.json`, `history.v1.json`, or `history.v2.json` with mode `0600`.
 If the copy fails, retain memory records, expose the error, and block replacement and later saves.
 Use the existing atomic saver for migration. A failed save retains memory records, the original file, and the recovery copy.
-Schema 2 needs no migration copy or write. Invalid and future markers keep the original file protected.
+Schema 3 needs no migration copy or write. Invalid and future markers keep the original file protected.
 An executable downgrade needs a compatible old history snapshot. That snapshot excludes records saved after the copy.
+
 Retain the latest 20 records per account and evaluation type.
 Hold `mu` during shared history access and `saveStateLocked`.
 `loadState` acquires its own lock and reads once per process.
 A missing file means no saved history.
 Other read/decode errors prevent later overwrite. A JSON `null` snapshot is invalid.
 
-Save all three maps together.
+Save all four maps together.
 Write `statePath + ".tmp"` with mode `0600`, then rename it over the destination.
 Keep this temporary file beside the destination.
 Atomic replacement does not provide an fsync durability guarantee.
@@ -89,9 +93,10 @@ Restart reloads saved history/settings without restoring tasks or the previous i
 | Condition | Result |
 | --- | --- |
 | Missing history file | Start with empty histories |
-| Unversioned native history | Load Candy/Pelican, mark Pelican original, copy original bytes, then save schema 2 with empty fingerprints |
-| Version-1 native history | Retain all maps, mark Pelican original, copy original bytes, then save schema 2 |
-| Version-2 native history | Load all maps without a migration copy or write |
+| Unversioned native history | Load Candy/Pelican, mark Pelican original, copy original bytes, then save schema 3 with empty fingerprints |
+| Version-1 native history | Retain existing maps, mark Pelican original, copy original bytes, then save schema 3 |
+| Version-2 native history | Retain existing maps and variants, copy original bytes to `history.v2.json`, then save schema 3 |
+| Version-3 native history | Load all four maps without a migration copy or write |
 | Migration copy fails | Retain memory records and block later saves |
 | Unreadable, malformed, null, or future-schema history | Show the error and prevent overwrite |
 | History save fails | Retain memory results and show the error |
@@ -115,7 +120,7 @@ Bad: a null history file must not become an empty snapshot after the next result
 ### 6. Tests Required
 
 Use existing native evaluation persistence tests for load protection, latest-20 retention, saves, and clear rollback.
-Extend that fixture for retained maps, original variants, migration copies, write failures, and schema-2 reload.
+Extend that fixture for retained maps, original variants, migration copies, write failures, and schema-3 reload.
 Do not add a separate migration suite.
 Use plugin `tests/test_service_codex_inspection_settings_test.go` for settings persistence, secrets, validation, and write failures.
 Reuse existing persistence evidence. Add focused checks only for changed storage behavior without coverage.

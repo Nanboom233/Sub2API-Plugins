@@ -2,7 +2,7 @@
 
 ## 1. Scope / Trigger
 
-The `sub2api-quota-extension` plugin adds default upstream quota detection and custom JavaScript queries on Sub2API v0.2.19.
+The `sub2api-quota-extension` plugin adds default upstream quota detection and custom JavaScript queries on Sub2API v0.2.20.
 Both paths use the existing account-management usage column for API-key accounts.
 Default detection also synchronizes native account expiration. It leaves channel monitor source and local quota counters unchanged.
 Default detection failures remain silent. Custom-script errors appear in the usage cell and inline test output.

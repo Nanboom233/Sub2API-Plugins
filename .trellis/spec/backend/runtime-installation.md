@@ -2,7 +2,7 @@
 
 ## 1. Scope / Trigger
 
-Use this contract for the evaluation plugin on Sub2API v0.2.19.
+Use this contract for the evaluation plugin on Sub2API v0.2.20.
 Production source lives in the [plugin patches](../../../plugins/codex-candy-eval/patches/), applied in lexical filename order.
 The [integration patch](../../../plugins/codex-candy-eval/patches/0007-sub2api-integration.patch) adds native routes, initialization, sidebar, URL resolution, page bypass, and navigation translations.
 The current implementation replaces the historical internal-key, activation, billing, maintenance and recovery designs.
@@ -44,11 +44,26 @@ It returns the actual upstream status and stream.
 Task operations use native `{code,message,data}` envelopes.
 
 The endpoint and background runners call the same native sender directly.
-AccountTestService owns credentials, URL validation, proxy, TLS, headers and plugin transport.
-Evaluation passes the chosen model literally, bypassing account model mappings and OAuth normalization only in this sender.
-The evaluation model catalog reuses native `FetchOpenAIModelsList` raw discovery and omits `projectAccountModelsBody`; the normal account catalog retains its configured projection.
-Chat Completions accounts use the existing native request and response conversion functions.
-Preserve observed usage and actual error text, including incomplete CC streams and response-copy failures.
+AccountTestService owns credentials, URL validation, proxy, TLS, headers, and plugin transport across all Sub2API platforms.
+Evaluation bypasses account-configured model mappings and gateway model admission.
+Non-Lite OpenAI OAuth requests retain native model-name normalization through `normalizeOpenAIModelForUpstream`.
+For example, native normalization changes `gpt-5` to `gpt-5.4`.
+Responses-Lite requests and bound SIWC-token requests retain their existing model behavior.
+Non-Lite OpenAI OAuth requests set `store:false`, add missing instructions, and convert string input content to `input_text` blocks.
+
+The evaluation model catalog reuses native raw discovery for OpenAI and default/mapped catalogs for Anthropic, Gemini, and Antigravity.
+Chat Completions, Anthropic Messages, and Gemini GenerateContent accounts convert requests and stream Responses SSE events back.
+
+SIWC sends one Responses streaming probe through `SendCodexEvaluation`, without retries.
+Its body contains `model`, `store:false`, `stream:true`, and one user message: `Reply with OK.`.
+Use `User-Agent: cpa-siwc-check/0.4.6` and a one-minute timeout.
+Classify completed responses as `available` and explicit cancellation as `cancelled`.
+Classify `subscription_sharing_user_not_eligible` as `restricted`.
+Classify `subscription_sharing_usage_limit_exceeded` or HTTP 429 as `limited`.
+
+Classify `subscription_sharing_invalid_user` or HTTP 401 as `auth_error`. Other failures remain `failed`.
+
+Preserve observed usage and actual error text, including incomplete streams and response-copy failures.
 Keep native snapshots and 401/429 handling.
 The new sender omits broad successful-test recovery.
 Ordinary `/test` and the user gateway retain their existing behavior.
@@ -61,7 +76,7 @@ Place fingerprint developer instructions in `generic.developer_instructions`.
 ### Tasks and history
 
 `StartRequest` contains `type`, `targets`, `model`, `effort`, `runs`, `concurrency`, and optional `variant`.
-Supported types are `candy`, `fingerprint`, and `pelican`.
+Supported types are `candy`, `fingerprint`, `pelican`, and `siwc`.
 Pelican accepts `variant: original` or `all-in-one`. Missing or empty values select `original`.
 Reject unknown nonempty variants before account lookup or supplier calls. Other evaluation types ignore this field.
 Fingerprint selects three distinct challenges. Per-account concurrency ranges from 1 through 3, with default 3.
@@ -72,16 +87,16 @@ An account remains busy across evaluation types until its worker exits.
 Start returns `started`, `busy` and `unavailable` arrays.
 Cancel accepts `run_id` and interrupts the matching task context and active response.
 
-State contains `active`, `candy`, `fingerprint`, `pelican`, and `storage_error`.
-Three history maps persist at `<data-dir>/codex-eval/history.json` with root marker `schema_version: 2`.
+State contains `active`, `candy`, `fingerprint`, `pelican`, `siwc`, and `storage_error`.
+Four history maps persist at `<data-dir>/codex-eval/history.json` with root marker `schema_version: 3`.
 The [persistence contract](./database-guidelines.md) defines old-format copies, retained maps, and migration write protection.
 Keep the latest 20 records per account and type.
 Save each result through a same-directory temporary file and rename.
 Unreadable or null history blocks overwrites.
 A failed clear restores the previous maps.
 Run state, progress and cancellation remain in memory.
-Record details support fingerprint and Pelican with exact record IDs.
-Keep wrappers `{type, fingerprint}` and `{type, pelican}`.
+Record details support fingerprint, Pelican, and SIWC with exact record IDs.
+Keep wrappers `{type, fingerprint}`, `{type, pelican}`, and `{type, siwc}`.
 Started entries expose `id`. Saved records retain native `Info.run_id`.
 Candy results remain inline in state.
 
@@ -116,24 +131,25 @@ When the saved tab is Settings, let `start()` own the initial settings read befo
 Restoring the tab must not start a competing settings read that later invalidates the first group response.
 Later user entries to Settings still refresh saved settings through the existing owner.
 Manual account inventories must contain only selected-group members on every page.
-Read `/api/v1/admin/accounts?platform=openai&group=<id>&lite=1&page=<n>&page_size=100` and its `group_ids` field.
+Read all native groups without platform filtering and load `/api/v1/admin/accounts?lite=1&page=<n>&page_size=100&group=<id>` for the selected group.
+Filter accounts by `<platform>:<type>` in `<test>-credential-type`, and restrict the `SIWC` tab to `openai:oauth` accounts.
 Refresh account membership on ordinary polls and reject obsolete group responses before updating the catalog.
 Keep the last valid same-group inventory usable during background refresh. Preserve unchanged row controls, selection, and expanded history.
 Block starts before the initial successful read, after a group/session change, or after an actual inventory failure.
 Keep an inventory error visible until recovery. Do not clear valid readiness merely because another request starts.
 Current inventory determines rows and targets even when the subsequent evaluation-state request fails.
 An evaluation-state failure must not restore accounts removed from the current inventory.
-In all three evaluation lists, `credentialView` adds one `降级` tag after priority when `extra.codex_eval_inspection_verdict === "degraded"`.
+In all four evaluation lists, `credentialView` adds one `降级` tag after priority when `extra.codex_eval_inspection_verdict === "degraded"`.
 Use the existing neutral `.tag` style for matching alignment and wrapping.
 Normal or absent verdicts show no degraded tag, regardless of actual priority or automatic priority adjustment.
 The existing account inventory refresh removes the tag after a saved recovery.
 Reuse raw model suggestions while enabled account IDs stay unchanged.
 Model discovery errors must not block a literal model when the account inventory is current.
-Scheduled Candy uses the Candy page's persisted group and filters for account selection.
+Automatic Candy and Fingerprint inspections use the Candy page's persisted group and filters for account selection.
 Inspection model, effort, counts, and flow remain independent. Manual fixed-count behavior stays unchanged.
 Do not maintain a separate inspection account catalog or settings-page result list.
 Manual batch targets must come from the displayed eligible selected-group accounts.
-All three model controls use a visible dropdown with native raw suggestions.
+All four model controls use a visible dropdown with native raw suggestions.
 Keep the direct custom-model path inside the dropdown interaction, including when the native catalog is empty.
 Selecting `自定义模型…` reveals the literal model input inside the same field.
 Retain a selected literal model when refreshed suggestions omit it.
@@ -176,7 +192,8 @@ Use native light/dark theme variables.
 | --- | --- |
 | Missing administrator authorization | Native authentication rejects the API call |
 | Invalid account/model/stream input | Actual validation error, no alternative account |
-| Configured model mapping or empty model catalog | Send the administrator's chosen model literally |
+| Configured model mapping or empty model catalog | Bypass the configured mapping. Retain native protocol normalization. |
+| Non-Lite OpenAI OAuth request selects `gpt-5` | Native model normalization sends `gpt-5.4` |
 | Raw model exists but configured account catalog filters it | Show raw evaluation suggestion; normal catalog remains filtered |
 | Browser uses a nonstandard port | Frame keeps the full browser origin and satisfies parent `frame-src 'self'` |
 | Account `schedulable:false` | Show disabled and switch off; use native schedulable POST to toggle |
@@ -218,6 +235,8 @@ The native delayed-stream lifetime test covers start/state request completion an
 Normal HTTP request completion preserves background work. Explicit stop cancels supplier work and retains the actual history outcome.
 [Runtime tests](../../../plugins/codex-candy-eval/tests/test_codexeval_runtime_test.go) cover admission, cancellation, history and stream outcomes.
 [Sender tests](../../../plugins/codex-candy-eval/tests/test_service_account_codex_eval_service_test.go) cover native transport and CC failures with observed usage.
+Check native model normalization for non-Lite OpenAI OAuth requests, together with the required payload conversion.
+Check that Responses-Lite and bound SIWC-token requests retain their existing model behavior.
 Algorithm suites live directly under plugin `tests/`. Native package annotations retain private access in temporary upstream packages.
 The [plugin builder](../../../plugins/codex-candy-eval/scripts/build.py) owns the automatic standalone entry and plugin-owned inputs.
 Reuse completed pristine and local integration evidence unless a change or concrete finding requires another check.
@@ -235,4 +254,7 @@ Wrong: generate an iframe URL from a hostname-only forwarded header or accept No
 Correct: resolve the frame URL in the browser with its complete origin and verify the native navigation/frame in an actual browser at a nonstandard port.
 
 Wrong: remove model mapping only in sending while the page still fetches the configured model projection.
-Correct: use raw evaluation discovery for suggestions and pass the chosen model literally through the UI start and sender.
+Correct: use raw evaluation discovery and bypass configured mappings. Keep native protocol normalization in the sender.
+
+Wrong: treat account model mappings and native OAuth model normalization as the same operation.
+Correct: bypass configured mappings while retaining the non-Lite OAuth normalization branch.
