@@ -174,3 +174,25 @@ Populate .trellis/spec/frontend/ guidelines, migrate historical eval task archiv
 ### Status
 
 [OK] **Completed**
+
+
+## Session 6: Sync codex-candy-eval v0.4.6 and upgrade baseline to Sub2API v0.2.20
+<!-- trellis-session: v=2 fp=fb1ba0823aa611de -->
+
+**Date**: 2026-11-08
+**Task**: Sync codex-candy-eval v0.4.6 and upgrade baseline to Sub2API v0.2.20
+**Branch**: `main`
+
+### Summary
+
+Restored cross-provider evaluation with unrestricted group selection, single-run fingerprint inspection with mode-aware status placement, name/email wildcard filters, SIWC 1-shot Responses probes, history schema v3, and upgraded all four repositories to Sub2API v0.2.20.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `bef76e1` | feat(eval): sync plugins and specs for Sub2API v0.2.20 |
+
+### Status
+
+[OK] **Completed**

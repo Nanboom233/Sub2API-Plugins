@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 5
-- **Last Active**: 2026-11-07
+- **Total Sessions**: 6
+- **Last Active**: 2026-11-08
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~176 | Active |
+| `journal-1.md` | ~198 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 6 | 2026-11-08 | Sync codex-candy-eval v0.4.6 and upgrade baseline to Sub2API v0.2.20 | `bef76e1` | `main` |
 | 5 | 2026-11-07 | Bootstrap frontend guidelines and migrate eval Trellis artifacts | `6009fdd` | `main` |
 | 4 | 2026-11-06 | Synchronize plugins, inspection, licensing, and artifact CI | `66f17f75726c3fadd9a5bf8d0bc2924378d755e4`, `2fc4e904eb83f13e63a833d4a9be34e7f77f3a46` | `feat/plugin-build-inspection` |
 | 3 | 2026-10-29 | Complete custom API-key quota scripts on Sub2API v0.2.19 | `2212b3b` | `feat/apikey-quota-scripts` |
