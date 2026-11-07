@@ -1,0 +1,12 @@
+{"file": ".trellis/spec/guides/index.md", "reason": "Verify compliance with project documentation, cache, and credential rules"}
+{"file": ".trellis/spec/backend/index.md", "reason": "Verify build and test execution rules and ASD-STE100 compliance"}
+{"file": ".trellis/spec/backend/runtime-installation.md", "reason": "Verify multi-provider evaluation, SIWC tab, and history v3 contracts"}
+{"file": ".trellis/spec/backend/native-inspection.md", "reason": "Verify fingerprint inspection mode, wildcard filtering, and round summary"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Verify changed-code quality gates and clean worktree requirements"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Verify embedded UI DOM tests, version rendering, and script modularity"}
+{"file": ".trellis/tasks/11-07-eval-upstream-feature-sync/research/upstream-and-omitted-features.md", "reason": "Verify all requested features and upstream v0.4.6 updates against research audit"}
+{"file": ".trellis/tasks/11-07-eval-upstream-feature-sync/research/sub2api-v0220-upgrade.md", "reason": "Verify Sub2API v0.2.20 patch adaptations, semantic fixes, and 4-repo alignment"}
+{"file": ".trellis/tasks/11-07-eval-upstream-feature-sync/research/fingerprint-inspection-rounds.md", "reason": "Verify single-run fingerprint inspection without 9-round multiplication"}
+{"file": ".trellis/tasks/11-07-eval-upstream-feature-sync/research/fingerprint-inspection-and-ui-audit.md", "reason": "Verify Option A fingerprint single-run, mode-aware next-inspection status placement, and unrestricted group selection"}
+{"file": ".trellis/spec/backend/minimal-linux-delivery.md", "reason": "Verify 4-repository build-kit byte-identity and v0.2.20 delivery rules"}
+{"file": ".trellis/spec/backend/api-key-quota.md", "reason": "Verify quota-extension v0.2.20 rebase and scopedAccountAccess preservation"}

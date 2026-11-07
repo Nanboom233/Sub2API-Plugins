@@ -1,0 +1,16 @@
+{"file": ".trellis/spec/guides/index.md", "reason": "Project-wide documentation, cache, and credential rules"}
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend spec index, build verification, and ASD-STE100 standard"}
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "Patch stack ownership and flat test placement in codex-candy-eval"}
+{"file": ".trellis/spec/backend/runtime-installation.md", "reason": "Administrator evaluation routes, transport, history, and UI contracts"}
+{"file": ".trellis/spec/backend/native-inspection.md", "reason": "Native inspection coordinator, settings persistence, and UI controls"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "Versioned history JSON persistence and native setting storage"}
+{"file": ".trellis/spec/backend/error-handling.md", "reason": "Evaluation error handling, retries, and cancellation contracts"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend spec index for embedded evaluation UI scripts"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Embedded evaluation DOM rendering and component conventions"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Embedded page localStorage persistence and state synchronization"}
+{"file": ".trellis/tasks/11-07-eval-upstream-feature-sync/research/upstream-and-omitted-features.md", "reason": "Complete audit of upstream v0.4.6 changes and omitted evaluation/inspection features"}
+{"file": ".trellis/tasks/11-07-eval-upstream-feature-sync/research/sub2api-v0220-upgrade.md", "reason": "Complete Sub2API v0.2.19 -> v0.2.20 diff, patch conflict, and 4-repo reference analysis"}
+{"file": ".trellis/tasks/11-07-eval-upstream-feature-sync/research/fingerprint-inspection-rounds.md", "reason": "Upstream vs Sub2API fingerprint inspection round comparison"}
+{"file": ".trellis/tasks/11-07-eval-upstream-feature-sync/research/fingerprint-inspection-and-ui-audit.md", "reason": "Exact audit for Option A single-run fingerprint inspection, mode-aware next-inspection status placement, and unrestricted group selection"}
+{"file": ".trellis/spec/backend/minimal-linux-delivery.md", "reason": "Build kit, workflow default tag, and 4-repository alignment rules"}
+{"file": ".trellis/spec/backend/api-key-quota.md", "reason": "Quota extension patch contracts for Sub2API v0.2.20 rebase"}
