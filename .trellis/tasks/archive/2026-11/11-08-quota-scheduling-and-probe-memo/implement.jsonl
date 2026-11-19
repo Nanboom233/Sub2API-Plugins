@@ -1,0 +1,22 @@
+{"file": ".trellis/spec/guides/index.md", "reason": "Project-wide documentation, cache, and credential rules"}
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend spec index, verified v0.2.21 baseline, and writing rules"}
+{"file": ".trellis/spec/backend/api-key-quota.md", "reason": "API-key default /v1/usage and custom Goja quota script contracts"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "Account extra persistence, scheduler snapshot sync, and outbox rules"}
+{"file": ".trellis/spec/backend/error-handling.md", "reason": "Silent fallback for default /v1/usage and error redaction for quota scripts"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Quality check gates and clean worktree rules"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend spec index for Vue admin account components"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Frontend usage cache and buildAPIKeyUsageRefreshKey invalidation rules"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/quota-scheduling-and-memoization.md", "reason": "Codebase investigation of Sub2API v0.2.20 scheduling and quota exhaustion/recovery"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/probe-memoization.md", "reason": "Codebase investigation of /v1/usage probe memoization and test fixture constraints"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/codex-eval-manual-inspection-recovery.md", "reason": "Root-cause analysis of codex-candy-eval manual inspection UI refresh bug"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/identity-cas-and-bulk-reset.md", "reason": "Root-cause analysis and native SQL CAS + BulkUpdate conditional reset design for the two P1 findings"}
+{"file": ".trellis/spec/backend/native-inspection.md", "reason": "Codex evaluation UI and inspection state polling specifications"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/upstream-v0.2.21-compatibility.md", "reason": "Sub2API v0.2.21 tag, patch application, native test evidence, and required version updates"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/upstream-v0.2.21-dependencies.md", "reason": "Both plugins' module versions, shared regexp2 dependency, native provider injection, bundled assets, and frontend resolution evidence"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/upstream-v0.2.21-conflicts.md", "reason": "Both plugins' upstream file intersections, shared routes and managed extra keys, standalone application, and native interface checks"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/complete-review-corrections.md", "reason": "Five confirmed full-review defects, approved correction boundaries, and regression evidence"}
+{"file": ".trellis/spec/backend/runtime-installation.md", "reason": "SIWC page eligibility, native sending, result classification, and focused UI regression contract"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/upstream-v0.2.23-compatibility.md", "reason": "Sub2API v0.2.23 tag, Go 1.27.4 bump, rejected quota hunks, AccountUsageCell loadActiveUsage cache config fix, and version reference map"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/upstream-v0.2.23-conflicts.md", "reason": "Verified v0.2.23 patch conflicts, semantic intersections, shared file checks, and standalone/combined Go package compile results"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/upstream-v0.2.23-dependencies.md", "reason": "Verified Go 1.27.4, jsonschema-go, regexp2 tokenizer, frozen pnpm install, vue-tsc --noEmit, and test_ui.cjs on v0.2.23"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/codex-eval-model-control-defaults.md", "reason": "Exact owner locations for degraded_remove_models defaults (gpt-6.1-terra already present; append gpt-6.2-sol across 4 files)"}

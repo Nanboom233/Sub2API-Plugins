@@ -1,0 +1,20 @@
+{"file": ".trellis/spec/guides/index.md", "reason": "Verify compliance with project documentation, cache, and credential rules"}
+{"file": ".trellis/spec/backend/index.md", "reason": "Verify build and test execution rules and ASD-STE100 compliance"}
+{"file": ".trellis/spec/backend/api-key-quota.md", "reason": "Verify quota scheduling integration and /v1/usage probe memoization contracts"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "Verify idempotent extra/bulk updates and Redis scheduler snapshot whitelisting"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Verify changed-code quality gates, patch cleanliness, and zero untracked artifacts"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Verify no updated_at infinite refresh loop in AccountUsageCell and AccountsView"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/quota-scheduling-and-memoization.md", "reason": "Verify all caveats and file:line anchors for scheduling and quota integration"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/probe-memoization.md", "reason": "Verify all caveats and file:line anchors for /v1/usage probe memoization and test fixtures"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/codex-eval-manual-inspection-recovery.md", "reason": "Verify codex-candy-eval inspection UI refresh fix and upstream comparison"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/identity-cas-and-bulk-reset.md", "reason": "Verify atomic identity CAS across all post-network writes and bulk/single conditional temp-unschedulable cleanup"}
+{"file": ".trellis/spec/backend/native-inspection.md", "reason": "Verify codex-candy-eval UI specification compliance"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/upstream-v0.2.21-compatibility.md", "reason": "Verify v0.2.21 patch compatibility, version references, and remaining frontend/full-build gaps"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/upstream-v0.2.21-dependencies.md", "reason": "Verify both plugins' dependency contracts and reuse existing tokenizer, frozen-lockfile, Vue type, and evaluation UI evidence"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/upstream-v0.2.21-conflicts.md", "reason": "Verify each plugin's upstream intersections and standalone independence, plus shared route and account-state contracts"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/complete-review-corrections.md", "reason": "Verify all five corrected defects, current-state preservation, stream termination, provider routing, and plugin independence"}
+{"file": ".trellis/spec/backend/runtime-installation.md", "reason": "Verify SIWC rate-limit admission, unchanged unrelated restrictions, and native HTTP 429 classification"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/upstream-v0.2.23-compatibility.md", "reason": "Verify v0.2.23 patch rebase, Go 1.27.4 workflow alignment, loadActiveUsage TypeScript cache field, and spec baseline updates"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/upstream-v0.2.23-conflicts.md", "reason": "Verify v0.2.23 standalone and combined conflict resolutions and unchanged upstream interfaces"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/upstream-v0.2.23-dependencies.md", "reason": "Verify Go 1.27.4 toolchain, Goja/regexp2 compatibility, and AccountUsageCell vue-tsc check"}
+{"file": ".trellis/tasks/11-08-quota-scheduling-and-probe-memo/research/codex-eval-model-control-defaults.md", "reason": "Verify 6-item degraded_remove_models default array, ordering, deduplication, and empty-list behavior"}
