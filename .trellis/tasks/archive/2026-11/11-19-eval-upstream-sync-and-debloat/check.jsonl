@@ -1,0 +1,10 @@
+{"file": ".trellis/spec/guides/index.md", "reason": "Verify compliance with documentation, temporary cache, license, and credential rules"}
+{"file": ".trellis/spec/backend/index.md", "reason": "Verify build gate and ASD-STE100 spec compliance"}
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "Verify cohesive codexeval package layout and flat test placement"}
+{"file": ".trellis/spec/backend/runtime-installation.md", "reason": "Verify evaluation transport, SIWC contract, history v3, and standalone page contracts"}
+{"file": ".trellis/spec/backend/native-inspection.md", "reason": "Verify Candy and Fingerprint inspection verdicts, model control, and narrow persistence"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "Verify history v3 compatibility and atomic writes"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Verify patch cleanliness, focused checks, and commit boundaries"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Verify embedded page and Vue iframe integration"}
+{"file": ".trellis/tasks/11-19-eval-upstream-sync-and-debloat/research/upstream-updates-since-v046.md", "reason": "Verify complete v0.4.7 detector sync and conformance fixture parity"}
+{"file": ".trellis/tasks/11-19-eval-upstream-sync-and-debloat/research/redundancy-and-divergence-audit.md", "reason": "Verify every approved cut and verify HTTP 400/500 and Sub2API adaptation boundaries remain intact"}

@@ -1,0 +1,10 @@
+{"file": ".trellis/spec/guides/index.md", "reason": "Project documentation, temporary cache, license, and GitHub credential rules"}
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend spec index, build verification gate, and ASD-STE100 writing rules"}
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "Keep LM detector inside codexeval package and detector assets in patch 0002"}
+{"file": ".trellis/spec/backend/runtime-installation.md", "reason": "Evaluation sending, SIWC header and rate-limit admission, history schema v3, and embedded page contracts"}
+{"file": ".trellis/spec/backend/native-inspection.md", "reason": "Native Candy and Fingerprint inspection coordinator, model-control defaults, and narrow verdict writes"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "History schema v3, migration backup copies, and settings storage"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Build gate, flat tests, and hybrid commit workflow"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend spec index for Vue admin views and embedded evaluation page"}
+{"file": ".trellis/tasks/11-19-eval-upstream-sync-and-debloat/research/upstream-updates-since-v046.md", "reason": "Exact upstream v0.4.7 fingerprint detector, data bank, UI, and version changes"}
+{"file": ".trellis/tasks/11-19-eval-upstream-sync-and-debloat/research/redundancy-and-divergence-audit.md", "reason": "Line-by-line safe cuts, contract-sensitive candidates, and required Sub2API adaptations"}
