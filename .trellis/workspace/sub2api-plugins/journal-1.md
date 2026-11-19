@@ -196,3 +196,35 @@ Restored cross-provider evaluation with unrestricted group selection, single-run
 ### Status
 
 [OK] **Completed**
+
+
+## Session 7: Adapt plugins to Sub2API v0.2.23, fix quota scheduling, and add model defaults
+<!-- trellis-session: v=2 fp=6fbb485a02f45325 -->
+
+**Date**: 2026-11-19
+**Task**: Adapt plugins to Sub2API v0.2.23, fix quota scheduling, and add model defaults
+**Branch**: `main`
+
+### Summary
+
+Adapt both plugins to Sub2API v0.2.23 on Go 1.27.4, integrate quota scheduling and probe memoization, allow SIWC checks under local rate limits, and add gpt-6.2-sol to default degraded model removals.
+
+### Main Changes
+
+- Synchronize default /v1/usage and Goja quota_script exhaustion and recovery into Sub2API scheduling, shared unsupported-probe memoization, and single-read locked account saves with atomic identity CAS (quota f9ba14b).
+- Replace full inspection account writes with narrow conditional updates, retain native Gemini and Anthropic stream paths, allow SIWC actions during local rate limits, and append gpt-6.2-sol to default degraded_remove_models (eval 4301252).
+- Rebase quota-extension.patch onto Sub2API v0.2.23, repair loadActiveUsage cache config typing, and upgrade workflows, README, and backend specs to v0.2.23 and Go 1.27.4 (parent a338468).
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `a338468` | chore: upgrade plugin delivery to Sub2API v0.2.23 |
+
+### Testing
+
+- [OK] Standalone patch checks, UPSTREAM_TAG=v0.2.23 five-platform build (10 binaries), Darwin arm64 -version check, independent trellis-check review, and read-only audit passed.
+
+### Status
+
+[OK] **Completed**
