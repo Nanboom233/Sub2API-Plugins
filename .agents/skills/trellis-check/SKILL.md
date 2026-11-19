@@ -25,7 +25,7 @@ Read the current task artifacts in order:
 - `implement.md` if present
 
 ```bash
-python3 ./.trellis/scripts/get_context.py --mode packages
+python3 -B ./.trellis/scripts/get_context.py --mode packages
 ```
 
 For each changed package/layer, read the spec index and follow its **Quality Check** section:
@@ -52,7 +52,7 @@ Run the project's lint, type-check, and test commands. Fix any failures before p
 
 ### Test Coverage
 
-- [ ] New function → unit test added?
+- [ ] Affected behavior and concrete defects have valid test coverage? Add tests only for actual gaps.
 - [ ] Bug fix → regression test added?
 - [ ] Changed behavior → existing tests updated?
 

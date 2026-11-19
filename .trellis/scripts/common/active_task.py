@@ -40,6 +40,7 @@ _CONVERSATION_KEYS = ("conversation_id", "conversationId", "conversationID")
 _TRANSCRIPT_KEYS = ("transcript_path", "transcriptPath", "transcript")
 _NESTED_KEYS = ("input", "properties", "event", "hook_input", "hookInput")
 _KNOWN_PLATFORMS = {
+    "antigravity",
     "claude",
     "codex",
     "cursor",
@@ -127,6 +128,9 @@ _ENV_CONVERSATION_KEYS: tuple[tuple[str, tuple[str, ...]], ...] = (
     # cursor-agent shell. Cursor's other path is the shell ticket below
     # (_lookup_shell_ticket_context_key), which is not Cursor-specific.
     ("cursor", ("CURSOR_CONVERSATION_ID", "CURSOR_CONVERSATIONID")),
+    # REAL in Antigravity CLI 1.5.12 (verified live in run_command child env
+    # and hook env; matches payload conversationId).
+    ("antigravity", ("ANTIGRAVITY_CONVERSATION_ID",)),
 )
 _ENV_TRANSCRIPT_KEYS: tuple[tuple[str, tuple[str, ...]], ...] = (
     # REAL but HOOK-SCOPE ONLY (verified 2026-08-05): documented for Cursor hook

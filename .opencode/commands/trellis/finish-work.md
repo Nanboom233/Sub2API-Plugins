@@ -1,11 +1,14 @@
 # Finish Work
 
-Wrap up the current session: archive the active task (and any other completed-but-unarchived tasks the user wants to clean up) and record the session journal. Code commits are NOT done here — those happen in workflow Phase 3.4 before you invoke this command.
+Archive the active task and record the session journal.
+Also archive other completed tasks if the user requests their cleanup.
+Complete ordinary work commits through `git-commit` in workflow Phase 3.4 before you invoke this command.
+Ordinary work includes source, tests, configuration, dependencies, specs, workflow files, and authorized project documentation.
 
 ## Step 1: Survey current state
 
 ```bash
-python3 ./.trellis/scripts/get_context.py --mode record
+python3 -B ./.trellis/scripts/get_context.py --mode record
 ```
 
 This prints:
@@ -35,17 +38,26 @@ For each remaining dirty path, decide whether it belongs to **the current task**
 Then route:
 
 - **Any remaining path looks like current-task work** — bail out with:
-  > "Working tree has uncommitted code changes from this task: `<list>`. Return to workflow Phase 3.4 to commit them before running `/trellis:finish-work`."
+  > "Working tree has uncommitted ordinary work from this task: `<list>`. Return to workflow Phase 3.4 to commit them before running `/trellis:finish-work`."
 
-  Do NOT run `git commit` here. Do NOT prompt the user to commit. The user goes back to Phase 3.4 and the AI drives the batched commit there.
+  Do not create ordinary work commits here. Return to Phase 3.4 and use `git-commit` for approval of each final commit.
+  Native task, archive, journal, and index bookkeeping commits retain their existing authorization rules.
 - **All remaining paths look unrelated** (other parallel-window work) — report them once and continue to Step 3:
   > "FYI, dirty files outside this task's scope — leaving them for the other window: `<list>`."
 - **Genuinely unsure** — ask the user once: "Are `<list>` this task's work I forgot to commit, or another window's? (commit / ignore)" — then route per their answer.
 
 ## Step 3: Archive task(s)
 
+Without a separate task branch, use:
+
 ```bash
-python3 ./.trellis/scripts/task.py archive <task-name>
+python3 -B ./.trellis/scripts/task.py archive <task-name> --skip-branch-validation
+```
+
+With an explicitly used task branch, retain branch validation:
+
+```bash
+python3 -B ./.trellis/scripts/task.py archive <task-name>
 ```
 
 At minimum: the current active task (if any). Plus any extra tasks the user confirmed in Step 1. Each archive produces a `chore(task): archive ...` commit via the script's auto-commit.
@@ -55,7 +67,7 @@ If there is no active task and the user did not confirm any cleanup archives, sk
 ## Step 4: Record session journal
 
 ```bash
-python3 ./.trellis/scripts/add_session.py \
+python3 -B ./.trellis/scripts/add_session.py \
   --title "Session Title" \
   --commit "hash1,hash2" \
   --summary "Brief summary"

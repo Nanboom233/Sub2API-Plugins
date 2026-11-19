@@ -238,8 +238,7 @@ def _restore_child_links(unlinked: dict[Path, str | None]) -> None:
 # Keep in sync with src/types/ai-tools.ts AI_TOOLS entries — these are the
 # platforms listed in workflow.md's "agent-capable" Skill Routing block.
 # Codex is checked separately because explicit inline mode does not consume
-# JSONL. Kilo / Antigravity / Devin are NOT in this list either: they load
-# specs through skills instead of JSONL.
+# JSONL. Kilo and Devin load specs through skills instead of JSONL.
 _SUBAGENT_CONFIG_DIRS: tuple[str, ...] = (
     ".claude",
     ".cursor",
@@ -250,6 +249,7 @@ _SUBAGENT_CONFIG_DIRS: tuple[str, ...] = (
     ".codebuddy",
     ".factory",   # Factory Droid
     ".github/copilot",
+    ".agent/agents", # Antigravity
     ".pi",        # Pi Agent
     ".trae",      # Trae IDE
     ".omp",       # Oh My Pi
@@ -580,7 +580,7 @@ def cmd_create(args: argparse.Namespace) -> int:
     # planning — a placeholder row would read as unresolved scaffolding to
     # `task.py validate` and to PR preflight, so the curation instructions go
     # to the console below instead of into the files. Agent-less platforms
-    # (Kilo / Antigravity / Devin) skip this — they load specs via the
+    # (Kilo / Devin) skip this — they load specs via the
     # trellis-before-dev skill instead of JSONL.
     created_jsonl = False
     if _has_subagent_platform(repo_root):
@@ -1538,8 +1538,15 @@ def _auto_commit_archive(
         )
         return not source_was_tracked
 
+    # HEAD still contains the source when its deletion is already staged.
+    rc, head_source_out, _ = run_git(
+        ["ls-tree", "-r", "--name-only", "HEAD", "--", source_rel],
+        cwd=repo_root,
+    )
+    source_in_head = rc == 0 and bool(head_source_out.strip())
+    commit_paths = [*paths, source_rel] if source_in_head else list(paths)
     rc, _, _ = run_git(
-        ["diff", "--cached", "--quiet", "--", *paths, source_rel],
+        ["diff", "--cached", "--quiet", "--", *commit_paths],
         cwd=repo_root,
     )
     if rc == 0:
@@ -1552,7 +1559,7 @@ def _auto_commit_archive(
     # chore commit (#579). `source_rel` is included so the source-side
     # deletions staged above land in the same commit.
     rc, _, err = run_git_retry_index_lock(
-        ["commit", "-m", commit_msg, "--", *paths, source_rel], cwd=repo_root
+        ["commit", "-m", commit_msg, "--", *commit_paths], cwd=repo_root
     )
     if rc == 0:
         print(f"[OK] Auto-committed: {commit_msg}", file=sys.stderr)

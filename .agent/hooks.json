@@ -1,0 +1,30 @@
+{
+  "trellis": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "python3 -B -X utf8 hooks/trellis_agy.py session-start",
+        "timeout": 15
+      }
+    ],
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "python3 -B -X utf8 hooks/trellis_agy.py workflow-state",
+        "timeout": 10
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "invoke_subagent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -B -X utf8 hooks/trellis_agy.py subagent",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}
