@@ -64,7 +64,7 @@ Keep native errors and observed usage. Add no separate provider termination requ
 
 SIWC sends one Responses streaming probe through `SendCodexEvaluation`, without retries.
 Its body contains `model`, `store:false`, `stream:true`, and one user message: `Reply with OK.`.
-Use `User-Agent: cpa-siwc-check/0.4.6` and a one-minute timeout.
+Use `User-Agent: cpa-siwc-check/0.4.7` and a one-minute timeout.
 Classify completed responses as `available` and explicit cancellation as `cancelled`.
 Classify `subscription_sharing_user_not_eligible` as `restricted`.
 Classify `subscription_sharing_usage_limit_exceeded` or HTTP 429 as `limited`.
@@ -128,7 +128,12 @@ After sequence acceptance, three valid answers produce probabilities. One or two
 Sequence rejection produces `attribution.decision: not_model` without rankings or probabilities.
 Parse the longest numeric run within 64,000 bytes. Keep values from 1 through 355.
 Require `max(80, ceil(expected * 0.55))` values and truncate excess values to the expected count.
-Sequence acceptance requires median lag-one autocorrelation at most -0.23 or median small-step share at most 0.05.
+Sequence acceptance requires at least one of three median measures to meet its threshold.
+The lag-one autocorrelation must be at most -0.23, or the small-step share must be at most 0.05.
+The nearby-pair share across lags one through three can also be at most 0.07.
+The v0.4.7 detector uses a 5,232,052-byte `shared_detector.bin` and matching model metadata.
+The model metadata has `built_at: 2026-11-17T19:37:59.839365+00:00`.
+The detector revision identifies the embedded binary with a SHA-256 label.
 Explicit failed or cancelled status takes precedence over attribution.
 Cancellation before three completed challenge events remains cancelled.
 Comparison aliases do not change the literal sent model.
@@ -174,6 +179,8 @@ Latest results, history, and details show each record's saved version. Toolbar c
 Both variants share the latest-20 limit. Keep 4:3 frozen previews, animated details, sandbox isolation, and stale-detail guards.
 At narrow widths, pair group/model and effort/version. Put the test action on its own full-width row.
 Fingerprint retains model and concurrency preferences. Do not read retired mode or ModelTrace preferences.
+Fingerprint details show three summary cards, probability bars, and expandable challenge samples.
+The `not_model` detail explains the adjacent-number and three-lag checks.
 A saved ModelTrace tab falls back to Candy.
 Render `not_model` as `不像语言模型回答` and null probability as `—`.
 Account enable uses `POST /api/v1/admin/accounts/:id/schedulable` with `{schedulable:boolean}`.

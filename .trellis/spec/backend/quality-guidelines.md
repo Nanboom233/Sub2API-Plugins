@@ -105,6 +105,15 @@ For the signing-policy check, exit status `1` means unset. A configured value ta
 
 Task-creation consent and an earlier commit request do not replace final work-commit approval.
 
+### Fork Upstream Sync Commits
+
+`plugins/codex-candy-eval` is a fork of `haowang02/cpa-plugin-codex-candy-eval`.
+When syncing an upstream release into a fork submodule, create a two-parent Git merge commit instead of a linear commit.
+Fetch the public upstream commit without user Git credentials and record that commit as the second parent.
+Keep the native Sub2API plugin layout and keep retired CPA files removed in the merged tree.
+Verify `git rev-list --parents -n 1 HEAD` lists both the previous local commit and the synced upstream commit.
+Update the parent repository submodule pointer only after verifying the two-parent merge commit.
+
 ### Trellis-Managed Artifacts
 
 Follow `.trellis/workflow.md` for task planning, completion, archival, and session records. Use the supported Trellis commands for lifecycle operations.
