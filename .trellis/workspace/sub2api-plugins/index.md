@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 7
+- **Total Sessions**: 8
 - **Last Active**: 2026-11-19
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~230 | Active |
+| `journal-1.md` | ~262 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 8 | 2026-11-19 | Sync codex-candy-eval v0.4.7 and remove redundant code | `5fcff51` | `main` |
 | 7 | 2026-11-19 | Adapt plugins to Sub2API v0.2.23, fix quota scheduling, and add model defaults | `a338468` | `main` |
 | 6 | 2026-11-08 | Sync codex-candy-eval v0.4.6 and upgrade baseline to Sub2API v0.2.20 | `bef76e1` | `main` |
 | 5 | 2026-11-07 | Bootstrap frontend guidelines and migrate eval Trellis artifacts | `6009fdd` | `main` |

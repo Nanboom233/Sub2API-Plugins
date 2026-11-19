@@ -228,3 +228,35 @@ Adapt both plugins to Sub2API v0.2.23 on Go 1.27.4, integrate quota scheduling a
 ### Status
 
 [OK] **Completed**
+
+
+## Session 8: Sync codex-candy-eval v0.4.7 and remove redundant code
+<!-- trellis-session: v=2 fp=78c7ee96840e4613 -->
+
+**Date**: 2026-11-19
+**Task**: Sync codex-candy-eval v0.4.7 and remove redundant code
+**Branch**: `main`
+
+### Summary
+
+Synchronize codex-candy-eval on Sub2API v0.2.23 with upstream v0.4.7 fingerprint detection and UI via a two-parent merge commit, remove redundant code, and document the fork merge rule.
+
+### Main Changes
+
+- Merge upstream cpa-plugin-codex-candy-eval through 9682e76 (v0.4.7) as a two-parent merge commit, porting v0.4.7 detector math, 5,232,052-byte shared_detector.bin, models.json, analyze.json fixture, 3-card Fingerprint UI, and 0.4.7 version and SIWC User-Agent (eval 6fc5b1f).
+- Delete dead wrappers, rename *Checked functions to canonical names, embed shared recordMeta, remove url.Values record plumbing, deduplicate AccountTestService SSE and request helpers, and extract inspection test reset helper (eval 6fc5b1f).
+- Update codex-candy-eval submodule pointer, synchronize runtime-installation.md for v0.4.7 3-lag sequence acceptance, UI layout, and cpa-siwc-check/0.4.7 header, and document the fork two-parent merge rule in quality-guidelines.md (parent 5fcff51).
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `5fcff51` | feat(eval): sync codex-candy-eval v0.4.7 and backend specs |
+
+### Testing
+
+- [OK] Standalone patch checks, codexeval/service/admin/UI unit tests, Playwright Chromium render check (8 px gap, 0 errors), UPSTREAM_TAG=v0.2.23 five-platform build (10 binaries), two read-only audits, and byte-identical tree verification against 90cb278 passed.
+
+### Status
+
+[OK] **Completed**
