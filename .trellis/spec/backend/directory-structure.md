@@ -81,7 +81,8 @@ Its existing numbered filenames sort into the original order below. Other plugin
 0007-sub2api-integration.patch
 ```
 
-Keep test source and test-only data out of production patches.
+Keep new plugin test source and test-only data out of production patches.
+When a native contract changes, patch its existing upstream test fixtures as needed.
 Keep `tests/` flat. Native suites use `test_*_test.go` names with their original Go package declarations.
 The `// sub2api-package:` annotation identifies the native package in temporary source.
 For example, `// sub2api-package: backend/internal/codexeval` preserves private package access without a public testing API.

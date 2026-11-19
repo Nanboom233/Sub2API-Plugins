@@ -52,6 +52,7 @@ Return the observed response with a non-200 body-read error. Do not replace its 
 Retry marked direct transport failures, HTTP 408/5xx, and unusable successful streams while the parent context remains active.
 Keep HTTP 401, 429, and other permanent statuses final, including after body-read failure.
 Retry empty, incomplete, failed, or tool-only successful streams.
+Use native provider stream completion rules. Do not add separate Anthropic or Gemini termination requirements.
 Fingerprint retries numeric-count rejection. Sequence-shape rejection does not retry.
 Pelican retries failed selected-language markup acceptance through the same runner. Valid wrong Candy text completes without a retry.
 Do not add retries around account updates, settings saves, or notifications.

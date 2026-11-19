@@ -2,9 +2,10 @@
 
 ## 1. Scope / Trigger
 
-The `sub2api-quota-extension` plugin adds default upstream quota detection and custom JavaScript queries on Sub2API v0.2.20.
+The `sub2api-quota-extension` plugin adds default upstream quota detection and custom JavaScript queries on Sub2API v0.2.23.
 Both paths use the existing account-management usage column for API-key accounts.
-Default detection also synchronizes native account expiration. It leaves channel monitor source and local quota counters unchanged.
+Both paths synchronize account scheduling state from reported balance and window utilization.
+Default detection also synchronizes native account expiration and shares unsupported probe memoization with billing probes.
 Default detection failures remain silent. Custom-script errors appear in the usage cell and inline test output.
 Accounts without a custom script retain native provider results and errors.
 
@@ -30,6 +31,16 @@ func (s *AccountUsageService) ExecuteQuotaScript(
 ```
 
 Keep existing constructor callers usable. Supply shared transport and config through the production provider and generated Wire caller.
+
+`UpdateAPIKeyQuotaState` owns conditional quota persistence on the account repository.
+Pass the existing usage result, optional expiration, and optional unsupported-probe identity directly.
+Merge reported sources with the locked current row. Update the caller's account only after the transaction commits.
+Identity and script edits clear quota pauses within the native account update transaction.
+Do not add scheduling fields to frontend DTOs or `AccountBulkUpdate`.
+
+```go
+UpdateAPIKeyQuotaState(context.Context, *Account, *UsageInfo, *time.Time, *string) (bool, error)
+```
 
 ## 3. Contracts
 
@@ -60,14 +71,85 @@ Read key-level and nested subscription `expires_at`. Select the earlier availabl
 Use the one reported timestamp when the other is absent. If neither is present, preserve saved expiration.
 Do not use subscription expiry as monthly `ResetsAt`. Keep daily and monthly reset unknown without their source anchors.
 Preserve native expiration settings and past-time behavior. Add no separate disable policy or scheduler.
-Use native `AccountRepository.BulkUpdate` with optional `ExpiresAt *time.Time` for a narrow account update.
-Retain its scheduler outbox and snapshot synchronization. Skip writes when the selected expiration is unchanged.
+Save expiration, quota keys, and cooldowns atomically through `UpdateAPIKeyQuotaState` with identity, proxy, and script compare-and-swap.
+Keep scheduler outbox and snapshot synchronization when scheduling state changes. Skip writes when persisted state is unchanged.
+Update `updated_at` from `UpdateAPIKeyQuotaState` only when `expires_at` changes so usage refresh keys stay stable.
 Keep decoder expiry internal. Add no usage response field or extra frontend request.
 The existing account-expiry column reflects persistence on the next native account-list refresh.
 
 Default detection reads custom API-key targets independently of the billing probe's switch or result.
 Reuse official-domain and adaptive-target selection. Preserve native Gemini, Antigravity, and Grok results and errors.
+Forward `forceProbe` to native Antigravity usage queries. Retain upstream manual-query controls and account rows during refresh.
 Malformed nonempty URLs must reach URL validation rather than the official-target shortcut.
+
+Reuse `upstreamBillingProbeIdentity(account)` for shared probe memoization across `GET /v1/usage` and `GET /v1/sub2api/billing`.
+Save its SHA-256 digest in `accounts.extra.apikey_usage_unsupported_identity` after HTTP 404, 405, 501, non-OpenAI official domains, or invalid 2xx bodies.
+Skip automatic `GET /v1/usage` and scheduled `GET /v1/sub2api/billing` requests when the saved identity matches.
+Allow manual usage refreshes and manual billing probes to run even when memoized.
+Do not memoize transport errors, read timeouts, oversize bodies, HTTP 401, 403, 429, or 5xx responses.
+Clear the saved identity when a later probe succeeds or the probe identity changes.
+
+### Scheduling synchronization
+
+Synchronize non-error usage results from default detection and saved scripts into account scheduling state.
+Draft script previews in `POST /admin/accounts/quota-script/test` do not change account scheduling state.
+Save window utilization and RFC 3339 reset timestamps in `accounts.extra.apikey_quota_{5h,1d,7d,30d,total}_{used_percent,reset_at}`.
+Set `accounts.extra.apikey_quota_exhausted` when balance is zero or negative, or when an exhausted window lacks a future reset.
+Store the internal balance source in Boolean `accounts.extra.apikey_quota_balance_exhausted`.
+Reuse existing utilization and reset keys for window sources. Include the balance key in managed-key cleanup and scheduler filtering.
+Pause dated window exhaustion until the latest future reset with reason `apikey_quota_window_exhausted`.
+Clear that pause and exhaustion flag when usage recovers, probe identity or `quota_script` changes, or quota resets.
+
+Include `apikey_quota_*` keys in `filterSchedulerExtra` so Redis scheduler snapshots enforce quota exhaustion and threshold rules.
+Evaluate saved window snapshots in `EvaluateAccountSchedulingThreshold` when native platform window keys are absent.
+Guard temporary pause writes and clears with reason prefix `apikey_quota_` so non-quota pauses stay intact.
+Skip database writes when persisted quota or memoization state is unchanged.
+
+Build response-determined target values without comparing them with the account snapshot read before the request.
+Merge reported balance and window observations with the current locked database state before deriving combined scheduling state.
+A healthy reported source clears its own exhaustion. Keep exhaustion from sources that the response does not report.
+Clear the combined flag only when no retained source requires it. Derive the quota pause from all retained dated windows.
+Reported windows supply their current utilization and reset timestamp. Preserve window fields that the response cannot determine.
+An empty quota result changes no scheduling state.
+Use database-current `IS DISTINCT FROM` predicates to suppress unchanged writes.
+Change `updated_at` only when the reported expiration differs from the current database expiration.
+Default usage and saved scripts share these rules. A later healthy response can clear exhaustion from an overlapping same-identity request.
+Use recorded balance and window sources to derive scheduling state.
+Do not infer an additional balance block from an old aggregate flag or require an administrator reset for recovery.
+
+### Identity changes and atomic writes
+
+Compare platform, account type, complete credentials, proxy ID, hydrated proxy identity, and normalized `quota_script` before asynchronous write-back.
+Check the proxy target under a shared lock and apply the account mutation through one conditional SQL update in the same transaction.
+A stale snapshot returns `applied == false`. It must not change persisted quota, expiration, unsupported identity, or the caller's account snapshot.
+Change the caller's snapshot only after persistence succeeds.
+Report a missing quota writer through the existing error path. Do not fall back to unguarded writes.
+
+Single and bulk credential, proxy, or script edits clear their previous quota scheduling state.
+Probe identity includes adaptive routing fields `api_protocol`, `api_base_urls`, `provider_mode`, and `account_mode`.
+An HTTP identity change clears shared billing and unsupported-probe state as well.
+A script-only change clears quota scheduling state while retaining the billing snapshot.
+Validate and normalize bulk `quota_script` input through the existing string-or-null contract.
+Remove cleared managed keys from JSONB. Do not leave JSON null values.
+
+Single and bulk account updates clear only pauses whose reason starts with `apikey_quota_`.
+Use the existing update transaction and synchronize scheduler snapshots after commit.
+Failed validation must leave persisted state unchanged. Preserve non-quota pauses in mixed batches and during concurrent updates.
+
+Ordinary administrator saves merge quota state within the native account update transaction.
+Lock the current account row within the existing update transaction. Preserve native administrator-save conditions.
+For unchanged identity and script, merge quota-managed keys from that locked row, including newly absent keys.
+A script-only change retains unsupported-probe state while clearing scheduling state. Identity changes retain their established cleanup rules.
+Preserve current expiration unless the administrator supplies a value that differs from the pre-edit account snapshot.
+An unchanged expiration submitted by a full form must not replace a newer probe expiration.
+The billing-settings update accepts the previous expiration as an optional final argument. Existing calls can omit it.
+Retain current temporary pauses unless an identity or script edit clears a quota pause.
+Run the locked merge, native billing-settings update, and scheduler event in one transaction.
+Refresh the scheduler snapshot after commit. Keep existing repository callers and billing-settings contracts usable.
+
+Both plugins edit native administrator routes and account metadata preservation.
+Keep evaluation `codex_eval_inspection_*` keys separate from quota-managed keys.
+Keep quota `HTTPUpstream` and configuration injection aligned with `wire_gen.go`.
 
 ### Script storage and results
 
@@ -113,6 +195,7 @@ Do not add a custom quota array, display labels, or duplicate result fields.
 ### Script runtime and HTTP
 
 Use pure Go Goja at `v0.0.0-20261024144015-2a9269b6b6de` inside the existing executable.
+Keep its `regexp2/v2 v2.8.1` requirement, also selected for the upstream tokenizer.
 Create one runtime per invocation. Use synchronous calls without Node, timers, module loading, shell, or filesystem APIs.
 Expose `http.request({url, method?, headers?, body?}) -> {status, body}`. The default method is GET, and body values are strings.
 Reuse configured URL policy, proxy, header overrides, transport profile, and TLS profile.
@@ -174,8 +257,20 @@ Keep the native placeholder when no local or visible remote data exists. Zero ba
 | Condition | Result |
 | --- | --- |
 | Default mode without usable fields | No mapped fields and no query error |
-| Default HTTP, timeout, transport, or body-read failure | No mapped quota fields, added `error`, or added `error_code` |
-| Default invalid response, URL-policy rejection, or account setup failure | No mapped quota fields, added `error`, or added `error_code` |
+| Default or billing probe HTTP 404, 405, 501, or invalid 2xx body | Save shared unsupported probe identity and skip automatic probes for that identity |
+| Default HTTP 401, 403, 429, 5xx, timeout, or transport failure | No mapped quota fields, added `error`, or memoization |
+| Default URL-policy rejection or account setup failure | No mapped quota fields, added `error`, or added `error_code` |
+| Exhausted balance (`<= 0`) or undated exhausted window (`>= 100%`) | Set `apikey_quota_exhausted` so `IsQuotaExceeded` blocks scheduling |
+| Exhausted dated window (`>= 100%` with future `reset_at`) | Pause scheduling until the latest future `reset_at` |
+| Recovered balance (`> 0`) and windows (`< 100%`) | Clear `apikey_quota_exhausted` and any `apikey_quota_` temporary pause |
+| Identity, proxy target, or script changes during a query | Reject stale quota, expiration, pause, and memoization writes atomically |
+| Healthy response follows overlapping same-source exhaustion | Clear that source and recalculate combined exhaustion and quota pause |
+| Partial response omits an exhausted balance or window source | Retain that source and its applicable scheduling block |
+| Old exhausted account lacks balance-source metadata | Recalculate from recorded sources without an added administrator-reset requirement |
+| Ordinary save overlaps a quota-state update | Preserve current database quota state and any unedited expiration |
+| Response target state already matches the database | Skip the account write and scheduler event |
+| Single or bulk identity/script edit | Remove managed quota keys and clear quota pauses. Preserve non-quota pauses. |
+| Invalid bulk `quota_script` value | Reject the edit before persistence |
 | Key or subscription expiry reported | Save the earlier available value to native account expiration |
 | Neither expiry reported | Preserve the saved account expiration |
 | Expiry persistence fails | Keep mapped quota output and default-query silence |
@@ -192,6 +287,8 @@ Accounts without scripts retain native errors. Custom errors use the existing us
 
 Good: a rate-only response maps its `used` and `limit` into the matching native window without top-level remaining.
 Good: an unsaved create-form script uses draft settings and returns a balance unit without creating an account.
+Good: a healthy result clears exhaustion saved after that request read its account snapshot.
+Good: a name edit retains a concurrent quota recovery rather than restoring its old exhausted flag.
 Base: an official target without a script returns no new remote fields and retains the native cell's empty placeholder.
 Bad: a custom error triggers default detection, an empty response hides the placeholder, or a test replaces saved settings.
 
@@ -201,6 +298,15 @@ Use the focused cases in [the native Go suite](../../../plugins/sub2api-quota-ex
 Cover response mapping once in the backend, including zero, omission, rate-only windows, and ignored unlimited values.
 Extend the existing subscription case for the approved reset calculation and missing source timestamps.
 Use existing default mapping and usage-entrypoint cases for expiry selection, narrow persistence, and removal of the monthly expiry reset.
+Use `TestUpstreamQuotaProbeMemoization` for shared probe memoization, manual pass-through, transient-error retries, and identity-change invalidation.
+Use `TestUpstreamQuotaSchedulingIntegration` and `TestQuotaScriptSchedulingIntegration` for exhaustion pause, recovery resumption, and threshold evaluation.
+Use [the repository suite](../../../plugins/sub2api-quota-extension/tests/test_account_repo_quota_test.go) for compare-and-swap SQL, reason-guarded pause clearing, and bulk key stripping.
+Cover unchanged-state SQL rejection and conditional expiration timestamps in that suite.
+Cover same-identity overlap recovery for both default usage and scripts, including exhaustion flags and dated pauses.
+Cover omitted balance after balance exhaustion, omitted windows after window exhaustion, and recovery after each source returns.
+Check that an omitted dated window keeps its pause. Check recovery without an added administrator-reset prerequisite.
+Use deterministic request barriers or repository hooks. Do not use timing sleeps to create the concurrent update.
+Check locked ordinary-save merges for concurrent exhaustion, recovery, absent managed keys, explicit expiration, and existing reset behavior.
 Use existing single and batch entry points to check default behavior and the custom-script dispatch boundary.
 Cover custom selection, visible failure, absence of fallback, and removal restoration without multiplying failure cases by entry point.
 Use [the script runner suite](../../../plugins/sub2api-quota-extension/tests/test_quota_script_test.go) for execution, period/unit validation, and JavaScript/HTTP cancellation.
@@ -224,3 +330,6 @@ Correct: query usage independently and map reported window used/limit pairs into
 
 Wrong: use display labels to identify periods or rerun default detection after a custom script fails.
 Correct: map explicit period keys and show the custom error while preserving local information.
+
+Wrong: omit healthy-state writes because the request's old account snapshot was already healthy.
+Correct: emit the response target state and compare it with current values in the database.

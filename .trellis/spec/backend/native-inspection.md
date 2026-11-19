@@ -40,6 +40,7 @@ Native service signatures:
 GetCodexInspectionSettings(context.Context) (codexeval.InspectionSettings, error)
 UpdateCodexInspectionSettings(context.Context, codexeval.InspectionSettings) (codexeval.InspectionSettings, error)
 AccountTestService.PersistCodexInspectionVerdict(context.Context, int64, codexeval.InspectionVerdict, codexeval.InspectionSettings) error
+UpdateCodexInspectionState(context.Context, *Account, map[string]any, map[string]any) (bool, error)
 ```
 
 The service uses `SettingRepository.GetMultiple` and `SetMultiple` in the existing PostgreSQL `settings` table.
@@ -54,7 +55,7 @@ Each value contains the JSON representation of that field.
 | --- | --- |
 | `enabled`, `adjust_priority`, `control_models` | Boolean, false |
 | `notify_enabled` | Boolean, true when absent. Preserve a stored false. |
-| `degraded_remove_models` | String array, `gpt-6.1-sol`, `gpt-6-sol`, `gpt-5.6-sol`, `gpt-6-astra`, `gpt-6.1-terra` |
+| `degraded_remove_models` | String array, `gpt-6.1-sol`, `gpt-6-sol`, `gpt-5.6-sol`, `gpt-6-astra`, `gpt-6.1-terra`, `gpt-6.2-sol` |
 | `model`, `effort`, `test_type` | String, `gpt-6.1-sol`, `low`, and `candy` (`candy` or `fingerprint`) |
 | `max_tests_per_account` | Integer, 3 |
 | `min_wait_minutes`, `max_wait_minutes` | Integer, 15 and 35 |
@@ -167,6 +168,9 @@ Phases are `idle`, `testing`, `recovery_wait`, `completed`, `cancelled`, and `fa
 Results contain account identity, original priority, optional target priority, run IDs, test count, outcome, and separate evaluation/notification errors.
 Round state stays in memory. Candy and Fingerprint records use the existing history file. Account verdicts use native account storage.
 Keep backend errors, authentication handling, and polling recovery after removing the page error prompts.
+Call `load()` from `loadInspectionState()` when `running` becomes false or `finished_at` advances.
+That refresh updates `accountList`, evaluation state, and row verdict and priority badges.
+Keep idle `loadInspectionState()` polls free of account and model catalog requests.
 
 ### Account participation
 
@@ -194,8 +198,13 @@ Read the saved verdict for both scheduled and immediate rounds. Manual tests do 
 Do not infer verdicts from old priorities or migrate priority-based state. This is an accepted breaking change.
 Use `InspectionAccount.Verdict` and `InspectionHooks.PersistVerdict(context.Context, int64, InspectionVerdict, InspectionSettings) error`.
 The callback receives the round settings and delegates to `AccountTestService.PersistCodexInspectionVerdict`.
-When only the verdict changes, save its key through native `AccountRepository.UpdateExtra`.
-With model changes, save credentials, pending removals, and verdict through one native `AccountRepository.Update`.
+Save verdict-only and model changes through the narrow `UpdateCodexInspectionState` repository operation.
+Pass the optional model mapping and inspection metadata directly to that operation.
+Compare credentials, platform, account type, and proxy ID from the service read in the atomic database write.
+Reject a current inspection opt-out. A failed comparison prevents later priority changes and transition notifications.
+Merge only `credentials.model_mapping`, pending removals, and verdict. Preserve other credentials, metadata, and operational fields.
+Use the native transaction, scheduler outbox, and committed snapshot refresh. Do not fall back to a full account save.
+The comparison covers the service read before persistence. It does not add an identity snapshot to the evaluation runtime.
 Preserve inspection metadata during unrelated full account edits.
 After each account completes detection and existing confirmation rules establish its state, apply model control and optional priority adjustment.
 Include stable states. Apply each ready account without waiting for unrelated confirmations.
@@ -304,6 +313,8 @@ Notification failures retain `notification_error` and do not reverse saved verdi
 | Account state or priority changes before update | Retain the backend account error without changing priority |
 | Verdict save fails | Keep the previous verdict. Do not write priority or send a success notification. |
 | Compound model update fails | Keep mapping, pending removals, and verdict unchanged. Do not write priority. |
+| Account identity or inspected metadata changes before persistence | Reject the stale inspection write. Do not write priority or notify a transition. |
+| Account opts out before persistence | Reject the inspection write and preserve current account fields |
 | Priority update fails after a verdict save | Retain the verdict and backend error. A saved transition can still notify. |
 | Account participation is false | Skip inspection selection and later sends. Keep manual tests and normal traffic usable. |
 | Account switch save fails | Keep the saved value and show the error beside that switch |
@@ -328,6 +339,8 @@ Bad: a wrong first answer has an incomplete confirmation. Do not change state or
 
 Bad: recovery overwrites a model mapping that an administrator changed. Keep that current entry instead.
 
+Bad: inspection saves a copied full account after token refresh. Reject stale credentials and leave the refreshed account intact.
+
 ## 6. Tests Required
 
 Use the default `python3 scripts/build.py` entry and existing inspection, runtime, admin, service, and UI tests.
@@ -342,6 +355,9 @@ Reuse valid evidence for unchanged inputs.
 Extend settings and metadata fixtures for model-control fields and pending-removal preservation.
 Check mode-aware `#inspection-status` placement between `#candy-credentials` and `#fp-credentials` and single-run Fingerprint transitions.
 Use focused account-helper cases for partial/final removal, native admission, recovery, skipped entries, and failed compound writes.
+Cover changes between the service read and atomic write with deterministic synchronization or repository expectations.
+Assert that stale inspection writes cannot restore credentials, status, priority, participation, or quota metadata.
+Check transaction rollback, conditional-update rejection, narrow JSON payloads, and scheduler event ownership in repository tests.
 Reuse the existing adjustment-off lifecycle and unchanged sender evidence. Add no separate restart or sender matrix.
 Extend existing UI cases for the array field and widget. Compare the actual render with the native selector.
 Extend existing settings cases for the notification default, stored false, and saved-secret placeholder.

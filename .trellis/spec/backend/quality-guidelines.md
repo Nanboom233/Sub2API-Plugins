@@ -4,11 +4,12 @@
 
 Use [administrator evaluation](./runtime-installation.md), [native inspection](./native-inspection.md), and [binary delivery](./minimal-linux-delivery.md) for current contracts.
 Delivery uses the selected upstream tag on Linux amd64/arm64, Darwin amd64/arm64, and Windows amd64.
-Sub2API v0.2.20 remains the verified integration baseline.
+Sub2API v0.2.23 is the verified integration baseline.
 Installer version mismatches produce warnings and require explicit confirmation. Matching executable versions need no version prompt.
 The common build downloads upstream source and discovers initialized plugin submodules with production patches under `plugins/`.
 Each plugin and the template retain a complete aligned build kit. Local builds and CI use the same argument-free entry.
-Plugins own patches and business tests. All assertions and test support code live in flat `tests/`. `assets/` contains data only.
+Plugins own patches and business tests. Store new plugin assertions and support code in flat `tests/`. `assets/` contains data only.
+Keep necessary edits to existing upstream test fixtures with the native contract changes they verify.
 Use [Directory Structure](./directory-structure.md) for file ownership.
 
 For native behavior changes, use the approved focused checks:

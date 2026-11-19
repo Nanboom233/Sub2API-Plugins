@@ -2,7 +2,7 @@
 
 ## 1. Scope / Trigger
 
-Use this contract for the evaluation plugin on Sub2API v0.2.20.
+Use this contract for the evaluation plugin on Sub2API v0.2.23.
 Production source lives in the [plugin patches](../../../plugins/codex-candy-eval/patches/), applied in lexical filename order.
 The [integration patch](../../../plugins/codex-candy-eval/patches/0007-sub2api-integration.patch) adds native routes, initialization, sidebar, URL resolution, page bypass, and navigation translations.
 The current implementation replaces the historical internal-key, activation, billing, maintenance and recovery designs.
@@ -43,8 +43,9 @@ The account endpoint accepts a complete Responses JSON request with nonempty `mo
 It returns the actual upstream status and stream.
 Task operations use native `{code,message,data}` envelopes.
 
-The endpoint and background runners call the same native sender directly.
-AccountTestService owns credentials, URL validation, proxy, TLS, headers, and plugin transport across all Sub2API platforms.
+The endpoint and background runners call the plugin's `SendCodexEvaluation` adapter on native `AccountTestService`.
+Reuse native credentials, URL validation, proxy, TLS, headers, protocol routing, and transport helpers.
+Keep evaluation request and Responses result conversion in the adapter. Do not add another sending policy.
 Evaluation bypasses account-configured model mappings and gateway model admission.
 Non-Lite OpenAI OAuth requests retain native model-name normalization through `normalizeOpenAIModelForUpstream`.
 For example, native normalization changes `gpt-5` to `gpt-5.4`.
@@ -53,6 +54,13 @@ Non-Lite OpenAI OAuth requests set `store:false`, add missing instructions, and 
 
 The evaluation model catalog reuses native raw discovery for OpenAI and default/mapped catalogs for Anthropic, Gemini, and Antigravity.
 Chat Completions, Anthropic Messages, and Gemini GenerateContent accounts convert requests and stream Responses SSE events back.
+Antigravity API key accounts follow native model routing: `gemini-*` uses Gemini. Other models use Anthropic Messages.
+Keep other Antigravity credential types on their existing transport path.
+
+Preserve native stream completion behavior through the evaluation adapter.
+Use `apicompat.FinalizeAnthropicResponsesStream` for Anthropic EOF or `[DONE]` handling.
+Follow native Gemini completion behavior for EOF, `[DONE]`, and reported finish reasons.
+Keep native errors and observed usage. Add no separate provider termination requirement.
 
 SIWC sends one Responses streaming probe through `SendCodexEvaluation`, without retries.
 Its body contains `model`, `store:false`, `stream:true`, and one user message: `Reply with OK.`.
@@ -62,6 +70,10 @@ Classify `subscription_sharing_user_not_eligible` as `restricted`.
 Classify `subscription_sharing_usage_limit_exceeded` or HTTP 429 as `limited`.
 
 Classify `subscription_sharing_invalid_user` or HTTP 401 as `auth_error`. Other failures remain `failed`.
+
+Local `rate_limit_reset_at` does not block SIWC row actions, selection, or selected-account and all-account batches.
+Retain SIWC selection during refresh while only that rate limit remains. Keep the rate-limit label and saved account state.
+Other restrictions and other evaluation tabs retain their existing eligibility rules.
 
 Preserve observed usage and actual error text, including incomplete streams and response-copy failures.
 Keep native snapshots and 401/429 handling.
@@ -205,8 +217,11 @@ Use native light/dark theme variables.
 | Inventory refresh succeeds but evaluation state fails | Keep the state error. Remove moved accounts from rows and targets. |
 | A saved preference changes before blur | A page reload restores the input value through the existing preference store |
 | Account already running | Target appears in `busy` |
+| SIWC account has only a future local rate-limit reset | Allow row and batch checks while retaining the rate-limit label and state |
 | Lookup or account protocol unavailable | Target appears in `unavailable` with the actual reason |
-| HTTP/SSE/CC failure or premature stream EOF | Actual failure and observed usage, no fabricated completion |
+| Native HTTP, stream, or protocol conversion fails | Preserve the actual failure and observed usage |
+| Provider stream ends | Preserve the native stream outcome through result conversion |
+| Antigravity API key selects a Claude model | Use the native Anthropic protocol branch |
 | Task cancelled | Interrupt active request and prevent subsequent calls |
 | Unknown nonempty Pelican variant | Return 400 before account lookup or supplier calls |
 | Pelican selected markup absent or oversized | Persist `failed` and the admitted variant consistently in summaries and details |
@@ -235,8 +250,11 @@ The native delayed-stream lifetime test covers start/state request completion an
 Normal HTTP request completion preserves background work. Explicit stop cancels supplier work and retains the actual history outcome.
 [Runtime tests](../../../plugins/codex-candy-eval/tests/test_codexeval_runtime_test.go) cover admission, cancellation, history and stream outcomes.
 [Sender tests](../../../plugins/codex-candy-eval/tests/test_service_account_codex_eval_service_test.go) cover native transport and CC failures with observed usage.
+Check native stream completion behavior and Antigravity Gemini/Claude API key request paths through the existing adapters.
 Check native model normalization for non-Lite OpenAI OAuth requests, together with the required payload conversion.
 Check that Responses-Lite and bound SIWC-token requests retain their existing model behavior.
+Use the existing UI suite to check SIWC row, selected, all-account, and refresh behavior with a locally rate-limited account.
+Check that other restrictions and evaluation tabs retain their current blocking behavior.
 Algorithm suites live directly under plugin `tests/`. Native package annotations retain private access in temporary upstream packages.
 The [plugin builder](../../../plugins/codex-candy-eval/scripts/build.py) owns the automatic standalone entry and plugin-owned inputs.
 Reuse completed pristine and local integration evidence unless a change or concrete finding requires another check.

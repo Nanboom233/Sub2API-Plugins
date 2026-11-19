@@ -22,6 +22,9 @@ Native history owners are `backend/internal/codexeval/state.go` and `runtime.go`
 `Initialize` selects `<native-data-directory>/codex-eval/history.json`.
 `loadState`, `saveStateLocked`, and `clearHistoryResponse` own file operations.
 
+Inspection account writes use the evaluation plugin's narrow `UpdateCodexInspectionState` repository operation.
+Pass the expected account, optional model mapping, and inspection metadata directly.
+
 ### 3. Contracts
 
 Store each inspection setting as its JSON field value under an inspection-specific key.
@@ -38,7 +41,7 @@ Native account storage supplies cross-group and restart persistence. Keep it sep
 
 Store account verdict as `normal` or `degraded` in `extra.codex_eval_inspection_verdict`. An absent verdict means normal.
 Actual priority does not initialize the verdict. Do not add old-priority inference or migration.
-Use a key-only atomic merge for verdict transitions without model changes. Preserve the key during unrelated full account edits.
+Use the inspection atomic writer for verdict transitions. Preserve the key during unrelated full account edits.
 Apply model control after each completed detection establishes the account state, including stable states.
 Skip writes when model data, pending removals, and verdict already match. An absent normal verdict needs no initialization write.
 Persist the verdict before an optional actual-priority update. A failed priority write does not reverse the saved verdict.
@@ -48,9 +51,13 @@ Store actual removed model names in `extra.codex_eval_inspection_removed_models`
 Merge new actual removals without duplicate names.
 An absent or empty array means no pending restoration. Ordinary full account edits preserve this key.
 Whitelist identity entries use `credentials.model_mapping` with equal keys and values.
-Save changed model mappings, pending removals, and verdict through one native `AccountRepository.Update`.
-Copy mutable maps and preserve unrelated credentials and metadata before that call.
-Use the existing repository transaction, scheduler outbox, and snapshot refresh.
+Save changed model mappings, pending removals, and verdict through one conditional inspection update.
+Compare expected credentials, platform, account type, and proxy ID in that update.
+Require current inspection participation. Reject a failed comparison before later priority writes or transition notifications.
+Merge only the mapping and inspection keys. Preserve current quota state and other unrelated database fields.
+Copy mutable maps before the inspection write. A failed write must not change the loaded object.
+Use the existing repository transaction, scheduler outbox, and committed snapshot refresh.
+Do not route inspection writes through the general full-account update method.
 Do not send a partial credentials object through generic administrator updates. They preserve omitted sensitive fields only.
 Recovery reads the saved removal list even when the global list changes or model control becomes off.
 Keep current administrator mappings, remove the reserved identity placeholder, and clear pending removals in the same write.
@@ -106,12 +113,15 @@ Restart reloads saved history/settings without restoring tasks or the previous i
 | Settings write fails | Return the error without changing active settings |
 | Account verdict save fails | Keep the previous verdict and prevent the optional priority write |
 | Compound account update fails | Keep stored mapping, removed-model list, and verdict unchanged. Prevent the optional priority write. |
+| Inspection account comparison fails or participation is disabled | Reject the stale write without replacing current fields or notifying a transition |
 
 ### 5. Good / Base / Bad Cases
 
 Good: blank notification secret inputs retain existing native settings values.
 
 Good: one account update saves the changed mapping, actual removal list, and degraded verdict together.
+
+Good: a concurrent quota update survives inspection because inspection merges only its own JSON keys.
 
 Base: absent history starts empty. Absent inspection keys use defaults.
 
@@ -127,6 +137,7 @@ Reuse existing persistence evidence. Add focused checks only for changed storage
 Account participation needs key-only-save and full-edit-preservation assertions, without a separate restart or copy test matrix.
 Extend the same metadata fixtures for the verdict key and absent-state normal default.
 Extend the full-edit fixture for pending removals. Use account-helper tests for compound model writes and recovery.
+Check inspection conditional updates, current unrelated-field retention, rejected stale credentials, and rollback before scheduler events commit.
 Use the focused coordinator tests for verdict-save failure. Do not repeat lifecycle checks in storage tests.
 Tests use temporary files and synthetic data. Do not delete real history or settings.
 
@@ -135,3 +146,7 @@ Tests use temporary files and synthetic data. Do not delete real history or sett
 Wrong: put inspection credentials in the history snapshot because both features share the evaluation runtime.
 
 Correct: retain history in JSON and save inspection settings through the native settings service.
+
+Wrong: save a copied account to change only inspection mapping and metadata.
+
+Correct: conditionally update those fields and retain all other current database values.

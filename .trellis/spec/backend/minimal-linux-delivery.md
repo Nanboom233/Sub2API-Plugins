@@ -3,7 +3,7 @@
 ## 1. Scope / Trigger
 
 Deliver combined programs from the selected upstream tag for Linux amd64/arm64, Darwin amd64/arm64, and Windows amd64.
-The verified integration baseline is v0.2.20.
+The verified integration baseline is v0.2.23.
 Each self-contained Go installer carries its native program, required Linux container program, and original license texts.
 Support official Docker/Compose, native executable, and Apple container installations through their existing startup owners.
 Standalone cleanup was removed from delivery.
@@ -13,8 +13,8 @@ Standalone cleanup was removed from delivery.
 User installation:
 
 ```sh
-chmod +x sub2api-plugins-installer-v0.2.20-linux-amd64
-./sub2api-plugins-installer-v0.2.20-linux-amd64
+chmod +x sub2api-plugins-installer-v0.2.23-linux-amd64
+./sub2api-plugins-installer-v0.2.23-linux-amd64
 ```
 
 The installer does not read or validate command-line arguments. Select the installation form, then its target.
@@ -32,14 +32,14 @@ python3 scripts/build.py
 Each plugin and the template also carry a complete build kit.
 Run `python3 scripts/build.py` in that checkout for a standalone build. It needs no parent checkout or manual source preparation.
 Both local builds and CI use this command. There is no CI adapter or external build Action.
-Actions exposes a required string input named `upstream_tag` for manual runs, with default `v0.2.20`. The user can replace it before the run starts.
+Parent and production-plugin workflows expose required `upstream_tag` input with default `v0.2.23`. The user can replace it before the run starts.
 Manual runs also expose five platform booleans, all true: `linux_amd64`, `linux_arm64`, `darwin_amd64`, `darwin_arm64`, and `windows_amd64`.
 The `release` boolean defaults false. Manual Release publication inherits the build's actual upstream tag. There is no `release_tag` input.
 Manual run titles use `Build <upstream_tag> · <ref_name>` without a run number. PR runs use their PR title.
 Top-level `run-name` reads existing inputs and GitHub context. Add no title input.
 Name the workflow and job `Build and Release`. Use one job with ID `build-release`.
 Pass the requested value through `UPSTREAM_TAG` in the process environment. Do not interpolate user input into shell commands.
-Local builds use the same entry and environment input, for example `UPSTREAM_TAG=v0.2.20 python3 scripts/build.py`.
+Local builds use the same entry and environment input, for example `UPSTREAM_TAG=v0.2.23 python3 scripts/build.py`.
 Pull-request builds resolve the latest official release through the public upstream release API.
 Local builds without `UPSTREAM_TAG` use the same resolver. Resolve once before source preparation and reuse the resulting actual `tag_name`.
 Use no user credentials for this public lookup. Query failure or an unusable response fails the build without a version fallback.
@@ -74,7 +74,7 @@ Every build executes discovered plugin tests against the combined source. The ru
 Preserve existing local source and plugin checkouts. Clean temporary workspaces on success and failure.
 Prepare source, dependencies, and the frontend once. Run host tests once and compile the selected targets, all five by default.
 Use CGO disabled and the native `embed` tag. Add `.exe` to Windows programs.
-The v0.2.20 source retains `0.2.19` in `backend/cmd/server/VERSION`.
+The v0.2.23 source retains `0.2.22` in `backend/cmd/server/VERSION`.
 Resolve the actual selected tag once. Remove only its leading `v` for canonical server and installer version metadata.
 Use that same selection for source download, test context, both linker values, artifact names, validation, and upload paths.
 Do not read a hardcoded version separately during output validation.
@@ -312,7 +312,7 @@ Data-only backups do not include that runtime program.
 
 ## 5. Good / Base / Bad Cases
 
-Good: include every plugin with production patches in one v0.2.20 server and retain the installed executable backup.
+Good: include every plugin with production patches in one v0.2.23 server and retain the installed executable backup.
 Base: a container recreated from its original image needs the same package reapplied.
 Bad: compile upstream sources or require nc/buildx/helper images on the user's host.
 Good: a Darwin/arm64-only CI build embeds Linux/arm64 while publishing only the selected Darwin pair.
@@ -356,7 +356,7 @@ Build final platform pairs and retain their platform paths. Cross-compilation do
 Use focused fixtures for automatic discovery, shared-file cooperation, failure propagation, and recursive license contents.
 Test shared version parsing and confirmation once. Use installer fixtures for matching versions and combined-warning continuation or cancellation.
 Do not multiply parser cases by confirmation inputs or probe positions.
-Use one real v0.2.20 build for integration evidence. Do not run its test entries separately as another acceptance gate.
+Use one real v0.2.23 build for integration evidence. Do not run its test entries separately as another acceptance gate.
 Reuse passed evidence when inputs and affected behavior remain unchanged.
 Extend the existing composition fixture for standalone roots, empty-template exclusion, and once-per-build common tests.
 Adapt those same builder cases for source/resume, selected targets and Linux payload closure, and failed publication preserving previous outputs.
