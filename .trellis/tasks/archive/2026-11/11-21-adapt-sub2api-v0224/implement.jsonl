@@ -1,0 +1,12 @@
+{"file":".trellis/spec/backend/index.md","reason":"Use active plugin boundaries and concise source-backed documentation."}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Preserve patch ownership, the complete build kit, and flat staged suites."}
+{"file":".trellis/spec/backend/api-key-quota.md","reason":"Preserve quota behavior and response ownership. Replace its obsolete separate-key reference during Phase 3.3."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Use established builds and focused checks without compatibility adapters or duplicate gates."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Preserve asynchronous response ownership and actual errors without fallback requests."}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Keep native usage bars, reset tooltips, local data, and custom error styling."}
+{"file":".trellis/spec/frontend/hook-guidelines.md","reason":"Use the task's unified upstream helper design. Synchronize obsolete separate-key examples only in Phase 3.3."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Use one refreshKey per cache. The approved task design supersedes the old config-field examples pending Phase 3.3."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Keep account and usage contracts typed without new API fields or dependencies."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Use real Vue components, flat focused suites, locale parity, and finally unmounts."}
+{"file":".trellis/spec/guides/index.md","reason":"Respect artifact, credential, and source-backed planning rules."}
+{"file":".trellis/tasks/11-21-adapt-sub2api-v0224/research/v0224-upstream-diff.md","reason":"Read exact tagged conflicts, semantic drift, unchanged plugin boundaries, and browser entry evidence."}

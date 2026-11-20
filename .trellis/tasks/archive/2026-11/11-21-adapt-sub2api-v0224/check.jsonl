@@ -1,0 +1,11 @@
+{"file":".trellis/spec/backend/index.md","reason":"Check the current plugin delivery and documentation boundaries."}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Check patch scope, flat suite placement, and output ownership."}
+{"file":".trellis/spec/backend/api-key-quota.md","reason":"Verify quota behavior, per-account invalidation, and stale replies. Schedule its obsolete helper reference for Phase 3.3."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Check focused build evidence and reject redundant fallbacks or version shims."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Verify actual errors and unchanged asynchronous ownership rules."}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Check native bars, zero balances, reset tooltips, and inline errors."}
+{"file":".trellis/spec/frontend/hook-guidelines.md","reason":"Check one unified helper, captured keys, native request order, and later removal of obsolete spec examples."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Check upstream single-refreshKey cache ownership. Follow the task design over old config-field examples until Phase 3.3."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Check TypeScript contracts without casts that hide cache-field omissions."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Verify locale parity, wrapper cleanup, and actual final UI behavior."}
+{"file":".trellis/tasks/11-21-adapt-sub2api-v0224/research/v0224-upstream-diff.md","reason":"Check all upstream intersections and the exact adaptation scope against source evidence."}
