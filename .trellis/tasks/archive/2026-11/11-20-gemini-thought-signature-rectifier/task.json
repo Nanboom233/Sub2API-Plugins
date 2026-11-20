@@ -1,0 +1,28 @@
+{
+  "id": "gemini-thought-signature-rectifier",
+  "name": "gemini-thought-signature-rectifier",
+  "title": "Gemini native thought signature rectifier",
+  "description": "Research and build a Sub2API plugin patch for Gemini native thought signature 400 error rectification",
+  "status": "completed",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "sub2api-plugins",
+  "assignee": "sub2api-plugins",
+  "createdAt": "2026-11-20",
+  "completedAt": "2026-11-21",
+  "branch": "main",
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "11-21-adapt-sub2api-v0224"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

@@ -1,0 +1,20 @@
+{"file":".trellis/spec/backend/index.md","reason":"Use the active v0.2.23 baseline and native plugin build boundaries."}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Keep a complete standalone plugin kit and flat annotated test suites."}
+{"file":".trellis/spec/backend/database-guidelines.md","reason":"Preserve native settings storage, explicit false, and existing field values."}
+{"file":".trellis/spec/backend/native-inspection.md","reason":"Compare actual native control rendering and use synthetic preview data."}
+{"file":".trellis/spec/backend/runtime-installation.md","reason":"Verify changed page behavior in an actual browser with native visual conventions."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Preserve cancellation, actual errors, response closure, and bounded retries."}
+{"file":".trellis/spec/backend/logging-guidelines.md","reason":"Use existing diagnostics without exposing request data or secrets."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Use focused checks and the established combined and standalone build entries."}
+{"file":".trellis/spec/frontend/index.md","reason":"Use native Vue administrator conventions and the relevant frontend contracts."}
+{"file":".trellis/spec/frontend/directory-structure.md","reason":"Keep frontend edits in native owners and tests in the flat plugin directory."}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Use existing Vue controls and preserve native settings interactions."}
+{"file":".trellis/spec/frontend/hook-guidelines.md","reason":"Reuse the existing settings load/save owner without another request mechanism."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Keep draft settings local and preserve the saved boolean round trip."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Extend the existing API interface and preserve explicit false values."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Keep matching locales, flat Vue suites, and wrapper cleanup."}
+{"file":".trellis/spec/guides/index.md","reason":"Respect artifact, license, credential, and temporary-cache rules."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Keep persistence, DTO, API type, form, and saved response contracts aligned."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Reuse native settings, Toggle, request builders, and build entry points."}
+{"file":".trellis/tasks/11-20-gemini-thought-signature-rectifier/research/existing-work.md","reason":"Read tagged forwarding and protocol evidence. The plan brief supersedes its old shared-toggle recommendation."}
+{"file":".trellis/tasks/11-20-gemini-thought-signature-rectifier/research/count-tokens-and-settings.md","reason":"Use exact counting, billing, saved-setting defaults, UI paths, and conflict findings."}

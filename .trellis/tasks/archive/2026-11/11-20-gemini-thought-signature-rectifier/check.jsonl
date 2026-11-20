@@ -1,0 +1,20 @@
+{"file":".trellis/spec/backend/index.md","reason":"Check the active baseline and avoid retired verification requirements."}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"Check plugin discovery, licenses, standalone kit completeness, and test separation."}
+{"file":".trellis/spec/backend/database-guidelines.md","reason":"Check saved defaults, explicit false, no read-time writes, and native persistence errors."}
+{"file":".trellis/spec/backend/native-inspection.md","reason":"Check actual native control parity and synthetic browser evidence."}
+{"file":".trellis/spec/backend/runtime-installation.md","reason":"Check changed page behavior through the actual native application in a browser."}
+{"file":".trellis/spec/backend/error-handling.md","reason":"Check cancellation, policy precedence, retry bounds, and preserved upstream errors."}
+{"file":".trellis/spec/backend/logging-guidelines.md","reason":"Check native diagnostic ownership and private-data limits."}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"Check focused validation and the repository review workflow."}
+{"file":".trellis/spec/frontend/index.md","reason":"Check native Vue conventions across the administrator settings feature."}
+{"file":".trellis/spec/frontend/directory-structure.md","reason":"Check native frontend ownership and flat plugin test placement."}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Check sibling DOM/classes, theme parity, accessible names, and shared Toggle use."}
+{"file":".trellis/spec/frontend/hook-guidelines.md","reason":"Check existing asynchronous settings ownership without duplicate requests."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Check form state, master visibility, and false save/reload behavior."}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Check the shared boolean contract and native TypeScript build."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Check matching locale keys, type checks, rendered Vue behavior, and wrapper cleanup."}
+{"file":".trellis/spec/guides/index.md","reason":"Check credential boundaries, license text, and temporary artifacts."}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Check the full settings round trip and each field projection."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Check native helper reuse and reject unnecessary modules or build paths."}
+{"file":".trellis/tasks/11-20-gemini-thought-signature-rectifier/research/existing-work.md","reason":"Check normal signature preservation, empty-Part semantics, and provider evidence limits."}
+{"file":".trellis/tasks/11-20-gemini-thought-signature-rectifier/research/count-tokens-and-settings.md","reason":"Check Option B, the false-default gate, plain-bool admin flow, locked UI copy, verified matcher/Ops sources, and patch targets."}
