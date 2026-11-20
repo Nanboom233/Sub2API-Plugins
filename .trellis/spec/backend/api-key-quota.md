@@ -2,7 +2,7 @@
 
 ## 1. Scope / Trigger
 
-The `sub2api-quota-extension` plugin adds default upstream quota detection and custom JavaScript queries on Sub2API v0.2.23.
+The `sub2api-quota-extension` plugin adds default upstream quota detection and custom JavaScript queries on Sub2API v0.2.24.
 Both paths use the existing account-management usage column for API-key accounts.
 Both paths synchronize account scheduling state from reported balance and window utilization.
 Default detection also synchronizes native account expiration and shares unsupported probe memoization with billing probes.
@@ -247,8 +247,19 @@ Do not infer custom-script reset times from period labels.
 
 Preserve cache, batch, lazy-load, and manual-refresh paths.
 After saved script or effective connection changes, invalidate only that account and reject stale in-flight results.
-`buildAPIKeyUsageRefreshKey(account)` includes `updated_at` for every API-key account, with or without a script.
+Extend native `buildAccountUsageRefreshKey(account)` with the API-key branch and reuse `serializeSnapshotRefreshValue`.
+Include connection fields, `extra.quota_script`, proxy ID, TLS fields, and `updated_at` for API-key accounts.
 Account responses omit the saved key. The save timestamp detects key-only changes without exposing credentials.
+
+Both `_usageCache` and `usageBatchCache` store only `{ data, ts, refreshKey }` with the native five-minute TTL.
+Use the single `usageRefreshKey` watcher for API-key invalidation and immediate refresh, including cells outside the viewport.
+Accept single replies only when their captured account ID and refresh key still match.
+Keep request counters and unmount checks on passive single replies.
+
+For batch success and failure, compare the current account key with the captured `refreshKeys` entry.
+Preserve `usageBatchRequestTokenByAccountId` for same-key ordering and native `shouldReplaceAutoRefreshRow` behavior.
+Keep native Claude and Gemini snapshot refreshes passive. Unrelated metadata changes do not start another query.
+
 Use `admin.accounts.usageWindow.upstreamQuota` as the native title on remote bars and balance text.
 Keep the native placeholder when no local or visible remote data exists. Zero balance counts as visible data.
 
@@ -316,6 +327,10 @@ Use [the native Vue suite](../../../plugins/sub2api-quota-extension/tests/test_u
 Check native mapped display, custom units/errors, and changed-row refresh there.
 Extend its existing cache-refresh case for a key-only save with redacted credentials and a changed `updated_at`.
 Extend its existing display case for the formatted reset tooltip and its absence without a timestamp.
+Use [the batch suite](../../../plugins/sub2api-quota-extension/tests/test_usage_batch.test.ts) for obsolete replies and native request ordering.
+
+Check stale success and failure, same-key overlap, unchanged-key reuse, and native snapshot refresh in the cell and batch suites.
+Check immediate saved-configuration refresh outside the viewport and script removal that clears obsolete state.
 Use [the shared editor suite](../../../plugins/sub2api-quota-extension/tests/test_quota_editor.test.ts) for editor behavior and form wiring.
 Preserve existing default-error, placeholder, local-information, and zero-balance cases.
 Frontend and handler cases consume mapped output without repeating the backend result matrix.

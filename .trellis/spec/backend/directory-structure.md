@@ -96,6 +96,22 @@ The quota plugin lives at `plugins/sub2api-quota-extension`.
 Its [production patch](../../../plugins/sub2api-quota-extension/patches/quota-extension.patch) extends native account usage.
 See [API Key Account Usage](./api-key-quota.md) for its service and frontend contracts.
 
+The Gemini plugin lives at `plugins/gemini-signature-rectifier`.
+Its [production patch](../../../plugins/gemini-signature-rectifier/patches/gemini-signature-rectifier.patch) extends native Gemini recovery and rectifier settings.
+Its four flat business suites cover native recovery, settings service, settings handler, and the settings UI:
+
+```text
+plugins/gemini-signature-rectifier/
+├── patches/gemini-signature-rectifier.patch
+└── tests/
+    ├── test_gemini_native_signature_rectifier_test.go
+    ├── test_rectifier_settings_test.go
+    ├── test_rectifier_settings_handler_test.go
+    └── test_rectifier_settings.test.ts
+```
+
+See [Gemini Native Signature Rectifier](./gemini-signature-rectifier.md) for executable contracts and suite links.
+
 Evidence: [repository ignore rules](../../../.gitignore) and [documentation rules](../guides/index.md#documentation-and-manifest-files).
 
 ---

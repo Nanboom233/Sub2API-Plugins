@@ -9,6 +9,7 @@
 | --- | --- |
 | [codex-candy-eval](https://github.com/Nanboom233/codex-candy-eval) | 跨供应商账户评估（糖果、指纹、鹈鹕、SIWC）、自动巡检与通知 |
 | [sub2api-quota-extension](https://github.com/Nanboom233/sub2api-quota-extension) | API Key 账户额度查询和自定义额度脚本 |
+| [sub2api-gemini-signature-rectifier](https://github.com/Nanboom233/sub2api-gemini-signature-rectifier) | 原生 Gemini 思考签名 HTTP 400 自动整流与独立后台开关 |
 | [sub2api-plugin-template](https://github.com/Nanboom233/sub2api-plugin-template) | 创建新插件的模板 |
 
 ## Installation

@@ -10,6 +10,7 @@ This repository touches two distinct frontend surfaces across its plugin submodu
 First, plugin patches extend the upstream Sub2API Vue 3, TypeScript, and Tailwind CSS administrator application.
 Second, the evaluation plugin serves an embedded standalone web interface under `/codex-eval` inside an administrator iframe.
 Use [API Key Account Usage](../backend/api-key-quota.md) for the quota extension cross-layer contract.
+Use [Gemini Native Signature Rectifier](../backend/gemini-signature-rectifier.md) for the native rectifier settings UI contract.
 Use [Administrator Evaluation](../backend/runtime-installation.md) and [Native Candy Inspection](../backend/native-inspection.md) for evaluation and inspection page contracts.
 Use [Quality and Commits](../backend/quality-guidelines.md) for the default build and focused verification rules.
 
@@ -20,6 +21,7 @@ Use [Quality and Commits](../backend/quality-guidelines.md) for the default buil
 | Guide | Description | Status |
 | --- | --- | --- |
 | [API Key Account Usage](../backend/api-key-quota.md) | Script editor, draft tests, native quota fields, cells, and refresh | Current |
+| [Gemini Native Signature Rectifier](../backend/gemini-signature-rectifier.md) | Native toggle, Boolean API field, locales, and settings tests | Current |
 | [Directory Structure](./directory-structure.md) | Patched Vue paths, embedded evaluation assets, and flat test placement | Current |
 | [Component Guidelines](./component-guidelines.md) | Vue 3 script-setup patterns, shared editors, cells, and DOM renderers | Current |
 | [Hook Guidelines](./hook-guidelines.md) | Composition utilities, request queues, and stale-response guards | Current |

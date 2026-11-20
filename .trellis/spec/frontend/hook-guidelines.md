@@ -16,8 +16,10 @@ Every asynchronous request path guards against unmounted components and obsolete
 ## Composition and Utility Patterns
 
 Place reusable derivation logic in `frontend/src/utils/` as pure TypeScript functions.
-Use `hasQuotaScript` and `buildAPIKeyUsageRefreshKey` in `frontend/src/utils/accountUsageRefresh.ts` to detect script usage and connection changes.
-Include `account.updated_at` in `buildAPIKeyUsageRefreshKey` because account responses redact saved API keys.
+Use `hasQuotaScript` to detect a nonblank string on an API-key account.
+Extend native `buildAccountUsageRefreshKey` in `frontend/src/utils/accountUsageRefresh.ts` for API-key connection changes.
+Include `account.updated_at` in that branch because account responses redact saved API keys.
+Keep the native provider branches and reuse `serializeSnapshotRefreshValue`.
 Use `buildEmbeddedUrl` and `detectTheme` in `frontend/src/utils/embedded-url.ts` to synchronize iframe URL parameters with `document.documentElement`.
 
 Example from `frontend/src/utils/accountUsageRefresh.ts` in [`quota-extension.patch`](../../../plugins/sub2api-quota-extension/patches/quota-extension.patch):
@@ -26,8 +28,8 @@ Example from `frontend/src/utils/accountUsageRefresh.ts` in [`quota-extension.pa
 export const hasQuotaScript = (account: Pick<Account, 'type' | 'extra'>): boolean =>
   account.type === 'apikey' && isNonBlankString(account.extra?.quota_script)
 
-export const buildAPIKeyUsageRefreshKey = (account: Account): string => {
-  if (account.type !== 'apikey') return ''
+// Inside buildAccountUsageRefreshKey, before native provider branches.
+if (account.type === 'apikey') {
   const credentials = account.credentials ?? {}
   const extra = account.extra ?? {}
   return serializeSnapshotRefreshValue({
@@ -47,6 +49,9 @@ export const buildAPIKeyUsageRefreshKey = (account: Account): string => {
   })
 }
 ```
+
+The helper's existing `Pick<Account, ...>` input also includes `credentials` and `proxy_id`.
+Use one key for both native and API-key caches. Do not add a separate API-key helper or watcher.
 
 ---
 
@@ -90,14 +95,14 @@ Cancel superseded group or catalog reads with `AbortController` or sequence coun
 
 Name Vue composition utilities with the `use` prefix (`useI18n`, `useId`, `useIntervalFn`, `useAppStore`).
 Name boolean predicate helpers with `is`, `has`, `should`, or `supports` (`hasQuotaScript`, `shouldFetchUsage`, `accountSupportsBatchUsage`).
-Name deterministic snapshot key builders with `build*RefreshKey` (`buildAPIKeyUsageRefreshKey`, `buildOpenAIUsageRefreshKey`).
+Name deterministic snapshot key builders with `build*RefreshKey` (`buildAccountUsageRefreshKey`, `buildOpenAIUsageRefreshKey`).
 Name API client methods after the endpoint action (`getUsage`, `getBatchUsage`, `testQuotaScript`).
 
 ---
 
 ## Common Mistakes
 
-- Applying an in-flight usage response after `apiKeyUsageRefreshKey` or `props.account.id` has changed.
+- Applying an in-flight usage response after `usageRefreshKey` or `props.account.id` has changed.
 - Triggering a fallback default quota query after a custom quota script fails.
 - Fetching model suggestions for disabled accounts (`schedulable === false`) in `backend/internal/codexeval/web/catalog.js`.
 - Starting a competing settings read during initial tab restoration in `app.js` that invalidates the first group catalog response.

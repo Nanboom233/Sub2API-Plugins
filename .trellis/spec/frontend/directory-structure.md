@@ -23,7 +23,16 @@ plugins/sub2api-quota-extension/
 ├── patches/quota-extension.patch            Patched upstream Vue, TS, and Go files
 └── tests/
     ├── test_quota_editor.test.ts            Staged Vitest suite for QuotaScriptEditor and modals
+    ├── test_usage_batch.test.ts             Staged Vitest suite for AccountsView batch replies
     └── test_usage_cell.test.ts              Staged Vitest suite for AccountUsageCell and bars
+
+plugins/gemini-signature-rectifier/
+├── patches/gemini-signature-rectifier.patch Native recovery and settings changes
+└── tests/
+    ├── test_gemini_native_signature_rectifier_test.go Native recovery suite
+    ├── test_rectifier_settings_test.go      Settings service suite
+    ├── test_rectifier_settings_handler_test.go Settings handler suite
+    └── test_rectifier_settings.test.ts      Staged Vitest suite for SettingsView
 
 plugins/codex-candy-eval/
 ├── patches/
@@ -35,7 +44,9 @@ plugins/codex-candy-eval/
 
 Temporary upstream workspace (applied by scripts/build.py):
 frontend/src/
-├── api/admin/accounts.ts                    Admin account API client and testQuotaScript
+├── api/admin/
+│   ├── accounts.ts                         Admin account API client and testQuotaScript
+│   └── settings.ts                         RectifierSettings Boolean API field
 ├── components/
 │   ├── account/
 │   │   ├── AccountUsageCell.vue             Account usage table cell and remote quota dispatch
@@ -47,7 +58,9 @@ frontend/src/
 │   └── layout/AppSidebar.vue                Admin navigation item for Account Evaluation
 ├── i18n/locales/{en,zh}/
 │   ├── common.ts                            Navigation labels in English and Chinese
-│   └── admin/accounts.ts                    Quota script and upstream quota translations
+│   └── admin/
+│       ├── accounts.ts                     Quota script and upstream quota translations
+│       └── settings.ts                     Native Gemini rectifier label and hint
 ├── router/index.ts                          /admin/codex-eval route definition
 ├── types/index.ts                           Account and AccountUsageInfo TypeScript interfaces
 ├── utils/
@@ -55,7 +68,8 @@ frontend/src/
 │   └── embedded-url.ts                      Same-origin iframe URL builder and theme detector
 └── views/admin/
     ├── AccountsView.vue                     Account list view and batched usage queue
-    └── CodexEvalView.vue                    Admin layout wrapper for /codex-eval iframe
+    ├── CodexEvalView.vue                    Admin layout wrapper for /codex-eval iframe
+    └── SettingsView.vue                     Native Gemini rectifier toggle and save field
 
 backend/internal/codexeval/
 ├── web.go                                   Go embed declarations and HTML template assembly
@@ -103,4 +117,6 @@ Do not create nested subdirectories inside `plugins/<name>/tests/`.
 - Embedded evaluation page and iframe view: [`0006-evaluation-ui.patch`](../../../plugins/codex-candy-eval/patches/0006-evaluation-ui.patch)
 - Admin navigation and route integration: [`0007-sub2api-integration.patch`](../../../plugins/codex-candy-eval/patches/0007-sub2api-integration.patch)
 - Staged Vitest component suites: [`test_quota_editor.test.ts`](../../../plugins/sub2api-quota-extension/tests/test_quota_editor.test.ts) and [`test_usage_cell.test.ts`](../../../plugins/sub2api-quota-extension/tests/test_usage_cell.test.ts)
+- Batch reply suite: [`test_usage_batch.test.ts`](../../../plugins/sub2api-quota-extension/tests/test_usage_batch.test.ts)
+- Native rectifier UI: [production patch](../../../plugins/gemini-signature-rectifier/patches/gemini-signature-rectifier.patch) and [settings suite](../../../plugins/gemini-signature-rectifier/tests/test_rectifier_settings.test.ts)
 - Embedded UI contract test suite: [`test_ui.cjs`](../../../plugins/codex-candy-eval/tests/test_ui.cjs)

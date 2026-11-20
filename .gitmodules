@@ -7,3 +7,6 @@
 [submodule "plugins/sub2api-plugin-template"]
 	path = plugins/sub2api-plugin-template
 	url = https://github.com/Nanboom233/sub2api-plugin-template
+[submodule "plugins/gemini-signature-rectifier"]
+	path = plugins/gemini-signature-rectifier
+	url = https://github.com/Nanboom233/sub2api-gemini-signature-rectifier

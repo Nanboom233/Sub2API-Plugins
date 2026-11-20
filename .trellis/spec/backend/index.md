@@ -3,7 +3,7 @@
 ## Current scope
 
 Active delivery builds the selected upstream tag on Linux amd64/arm64, Darwin amd64/arm64, and Windows amd64.
-The verified integration baseline is Sub2API v0.2.23.
+The verified integration baseline is Sub2API v0.2.24.
 Builds discover plugin submodules automatically.
 The common build downloads upstream source. Plugins own production patches, business tests, and their licenses.
 Each plugin and the template carry a complete standalone build kit. Local builds and CI both run `python3 scripts/build.py`.
@@ -22,6 +22,7 @@ The installer uses dynamic terminal interaction where supported, plain numbered 
 | [Administrator Evaluation](./runtime-installation.md) | Sending, task APIs, history, page and native session contracts |
 | [Native Inspection](./native-inspection.md) | Candy/Fingerprint rounds, account patterns, native settings, priority changes, and the Settings tab |
 | [API Key Account Usage](./api-key-quota.md) | Default/custom quota queries, draft previews, native cells, and focused tests |
+| [Gemini Native Signature Rectifier](./gemini-signature-rectifier.md) | Native recovery, settings, error policy, and focused tests |
 | [Binary Delivery](./minimal-linux-delivery.md) | Automatic source download, composition, version warnings, and replacement/restoration |
 | [Persistence](./database-guidelines.md) | Native settings and versioned four-map JSON history |
 | [Error Handling](./error-handling.md) | Actual errors, cancellation and shared bounded retries |
