@@ -260,3 +260,25 @@ Synchronize codex-candy-eval on Sub2API v0.2.23 with upstream v0.4.7 fingerprint
 ### Status
 
 [OK] **Completed**
+
+
+## Session 9: Add Gemini signature rectifier plugin and adapt to Sub2API v0.2.24
+<!-- trellis-session: v=2 fp=06d500fc119e4f4e -->
+
+**Date**: 2026-11-21
+**Task**: Add Gemini signature rectifier plugin and adapt to Sub2API v0.2.24
+**Branch**: `main`
+
+### Summary
+
+Added independent plugins/gemini-signature-rectifier plugin (Nanboom233/sub2api-gemini-signature-rectifier, default-false toggle, 4-rule RawMessage cleaner, Option B countTokens), refactored plugins/sub2api-quota-extension onto Sub2API v0.2.24 unified buildAccountUsageRefreshKey and single refreshKey caches (-4 hunks / -18 lines), passed standalone/combined v0.2.24 builds, Playwright Chromium visual checks, independent audits, and synced backend/frontend specs.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `0e15db5` | feat(plugins): add Gemini signature rectifier and adapt to v0.2.24 |
+
+### Status
+
+[OK] **Completed**
