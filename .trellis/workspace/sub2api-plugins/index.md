@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 9
-- **Last Active**: 2026-11-21
+- **Total Sessions**: 10
+- **Last Active**: 2026-11-22
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~284 | Active |
+| `journal-1.md` | ~306 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 10 | 2026-11-22 | Sanitize cross-endpoint Gemini signature envelopes and trim rectifier bloat | `4fcac15` | `main` |
 | 9 | 2026-11-21 | Add Gemini signature rectifier plugin and adapt to Sub2API v0.2.24 | `0e15db5` | `main` |
 | 8 | 2026-11-19 | Sync codex-candy-eval v0.4.7 and remove redundant code | `5fcff51` | `main` |
 | 7 | 2026-11-19 | Adapt plugins to Sub2API v0.2.23, fix quota scheduling, and add model defaults | `a338468` | `main` |

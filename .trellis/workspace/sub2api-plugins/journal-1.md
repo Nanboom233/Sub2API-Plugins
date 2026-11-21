@@ -282,3 +282,25 @@ Added independent plugins/gemini-signature-rectifier plugin (Nanboom233/sub2api-
 ### Status
 
 [OK] **Completed**
+
+
+## Session 10: Sanitize cross-endpoint Gemini signature envelopes and trim rectifier bloat
+<!-- trellis-session: v=2 fp=d56bb1fe6718ba66 -->
+
+**Date**: 2026-11-22
+**Task**: Sanitize cross-endpoint Gemini signature envelopes and trim rectifier bloat
+**Branch**: `main`
+
+### Summary
+
+Upgraded plugins/gemini-signature-rectifier (08174fe) to validate protobuf field-2 and Vertex bare-Tink thoughtSignature envelopes before upstream native Gemini requests, group parallel function calls on retained parts, reuse one request-scoped settings gate across preparation and HTTP 400 recovery, cut 48 lines across patch and tests, synced backend spec, and verified standalone plus argument-free combined Sub2API v0.2.24 builds.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `4fcac15` | fix(plugins): update Gemini signature envelope rectifier and spec |
+
+### Status
+
+[OK] **Completed**
