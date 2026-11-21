@@ -32,8 +32,7 @@ python3 scripts/build.py
 Each plugin and the template also carry a complete build kit.
 Run `python3 scripts/build.py` in that checkout for a standalone build. It needs no parent checkout or manual source preparation.
 Both local builds and CI use this command. There is no CI adapter or external build Action.
-Parent, evaluation, and quota workflows default required `upstream_tag` to `v0.2.23`.
-The Gemini workflow defaults the same required input to `v0.2.20`.
+All repository workflows default required `upstream_tag` to `v0.2.24`.
 The user can replace it before the run starts.
 Manual runs also expose five platform booleans, all true: `linux_amd64`, `linux_arm64`, `darwin_amd64`, `darwin_arm64`, and `windows_amd64`.
 The `release` boolean defaults false. Manual Release publication inherits the build's actual upstream tag. There is no `release_tag` input.
