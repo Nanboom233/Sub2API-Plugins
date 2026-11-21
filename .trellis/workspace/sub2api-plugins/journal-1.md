@@ -304,3 +304,25 @@ Upgraded plugins/gemini-signature-rectifier (08174fe) to validate protobuf field
 ### Status
 
 [OK] **Completed**
+
+
+## Session 11: Align template and plugin CI workflows to Go 1.27.4 and Sub2API v0.2.24
+<!-- trellis-session: v=2 fp=480c4fad46ab6d5f -->
+
+**Date**: 2026-11-22
+**Task**: Align template and plugin CI workflows to Go 1.27.4 and Sub2API v0.2.24
+**Branch**: `main`
+
+### Summary
+
+Aligned all five .github/workflows/build.yml files across template, plugins, and root to Go 1.27.4 and default upstream_tag v0.2.24 (SHA-256 a23981a16719), and synchronized minimal-linux-delivery.md.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `5b813d9` | chore(ci): align build workflows on Go 1.27.4 and Sub2API v0.2.24 |
+
+### Status
+
+[OK] **Completed**
