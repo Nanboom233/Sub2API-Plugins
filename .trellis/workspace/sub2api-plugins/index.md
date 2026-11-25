@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 11
-- **Last Active**: 2026-11-22
+- **Total Sessions**: 12
+- **Last Active**: 2026-11-25
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~328 | Active |
+| `journal-1.md` | ~350 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 12 | 2026-11-25 | Adapt and simplify plugins for Sub2API v0.2.25 | `86f12c1` | `main` |
 | 11 | 2026-11-22 | Align template and plugin CI workflows to Go 1.27.4 and Sub2API v0.2.24 | `5b813d9` | `main` |
 | 10 | 2026-11-22 | Sanitize cross-endpoint Gemini signature envelopes and trim rectifier bloat | `4fcac15` | `main` |
 | 9 | 2026-11-21 | Add Gemini signature rectifier plugin and adapt to Sub2API v0.2.24 | `0e15db5` | `main` |

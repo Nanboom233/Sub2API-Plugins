@@ -326,3 +326,25 @@ Aligned all five .github/workflows/build.yml files across template, plugins, and
 ### Status
 
 [OK] **Completed**
+
+
+## Session 12: Adapt and simplify plugins for Sub2API v0.2.25
+<!-- trellis-session: v=2 fp=f7f04dabaf2f8a0b -->
+
+**Date**: 2026-11-25
+**Task**: Adapt and simplify plugins for Sub2API v0.2.25
+**Branch**: `main`
+
+### Summary
+
+Adapted codex-candy-eval (e09e7f4) and sub2api-quota-extension (e8cc243, -1 file / -8 hunks / -69 added lines via AccountBillingSettingsUpdate, persistProbeFailure memoization, GetHeaderOverrides redaction, dead bulk expiry removal, key-slice deduplication, and billingBaseUrl reuse) to Sub2API v0.2.25, aligned all five build.yml workflows (gemini e774ff7, template a50d153, root 86f12c1), updated root and template READMEs and backend specs, and passed standalone builds, argument-free 5-platform combined build, 1440x900 Chromium UI checks, and cross-agent audits.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `86f12c1` | chore: upgrade plugin delivery and specs to Sub2API v0.2.25 |
+
+### Status
+
+[OK] **Completed**
