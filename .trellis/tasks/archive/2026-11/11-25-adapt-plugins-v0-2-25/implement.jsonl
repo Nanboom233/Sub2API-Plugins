@@ -1,0 +1,13 @@
+{"file": ".trellis/spec/guides/index.md", "reason": "Shared rules on documentation/manifest boundaries, Python cache prevention, GitHub credentials, and code reuse"}
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend baseline, build entry, pre-development checklist, and documentation rules"}
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "Plugin patch layout, flat tests/ structure, and build-kit ownership"}
+{"file": ".trellis/spec/backend/api-key-quota.md", "reason": "Quota scheduling, locked ordinary-save merge, expiration preservation, and shared unsupported-probe memoization contracts"}
+{"file": ".trellis/spec/backend/runtime-installation.md", "reason": "Codex evaluation AccountTestService transport and header override adaptation contracts"}
+{"file": ".trellis/spec/backend/gemini-signature-rectifier.md", "reason": "Gemini native signature rectifier baseline verification contracts"}
+{"file": ".trellis/spec/backend/minimal-linux-delivery.md", "reason": "Single-job workflow upstream_tag defaults, argument-free build.py, and binary version rules"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Focused build verification, anti-bloat test rules, and hybrid commit workflow"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend patch and Vitest verification overview"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "i18n parity, vue-tsc, vite build, and Vue wrapper cleanup rules"}
+{"file": ".trellis/tasks/11-25-adapt-plugins-v0-2-25/research/v0-2-25-upstream-and-patch-audit.md", "reason": "Codex worker audit of v0.2.24..v0.2.25 commits, rejected hunks, and compile/type checks"}
+{"file": ".trellis/tasks/11-25-adapt-plugins-v0-2-25/research/v0-2-25-simplification-audit-codex.md", "reason": "Codex worker upstream intent and false-simplification boundary audit"}
+{"file": ".trellis/tasks/11-25-adapt-plugins-v0-2-25/research/v0-2-25-simplification-audit-omp.md", "reason": "OMP worker exact S1-S6 + D3-D4 line-level simplification snippets and contract proofs"}

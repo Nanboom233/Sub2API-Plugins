@@ -1,0 +1,12 @@
+{"file": ".trellis/spec/guides/index.md", "reason": "Verify compliance with documentation/manifest boundary, cache cleanup, and GitHub credential rules"}
+{"file": ".trellis/spec/backend/index.md", "reason": "Verify backend quality check gate and ASD-STE100 spec rules"}
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "Verify flat tests/ layout and build-kit alignment"}
+{"file": ".trellis/spec/backend/api-key-quota.md", "reason": "Verify quota locked save merge, expiration preservation, HTTP 404/405/501/invalid-2xx memoization, and scheduling contracts"}
+{"file": ".trellis/spec/backend/runtime-installation.md", "reason": "Verify Codex evaluation sender context-aware header override contracts"}
+{"file": ".trellis/spec/backend/gemini-signature-rectifier.md", "reason": "Verify Gemini rectifier regression coverage in combined v0.2.25 build"}
+{"file": ".trellis/spec/backend/minimal-linux-delivery.md", "reason": "Verify workflow defaults, binary version output, and 10-binary publication"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Verify focused checks, zero bloat/shims, and commit boundary"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Verify i18n parity, vue-tsc, vite build, and Vitest cleanup"}
+{"file": ".trellis/tasks/11-25-adapt-plugins-v0-2-25/research/v0-2-25-upstream-and-patch-audit.md", "reason": "Cross-check implementation against audited v0.2.25 upstream changes"}
+{"file": ".trellis/tasks/11-25-adapt-plugins-v0-2-25/research/v0-2-25-simplification-audit-codex.md", "reason": "Cross-check rejected false simplifications and header-override boundaries"}
+{"file": ".trellis/tasks/11-25-adapt-plugins-v0-2-25/research/v0-2-25-simplification-audit-omp.md", "reason": "Cross-check S1-S6 + D3-D4 hunk and line reductions against audited baseline"}
