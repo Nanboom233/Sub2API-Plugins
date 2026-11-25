@@ -2,7 +2,7 @@
 
 ## 1. Scope / Trigger
 
-Use this contract for the evaluation plugin on Sub2API v0.2.24.
+Use this contract for the evaluation plugin on Sub2API v0.2.25.
 Production source lives in the [plugin patches](../../../plugins/codex-candy-eval/patches/), applied in lexical filename order.
 The [integration patch](../../../plugins/codex-candy-eval/patches/0007-sub2api-integration.patch) adds native routes, initialization, sidebar, URL resolution, page bypass, and navigation translations.
 The current implementation replaces the historical internal-key, activation, billing, maintenance and recovery designs.
@@ -45,7 +45,9 @@ Task operations use native `{code,message,data}` envelopes.
 
 The endpoint and background runners call the plugin's `SendCodexEvaluation` adapter on native `AccountTestService`.
 Reuse native credentials, URL validation, proxy, TLS, headers, protocol routing, and transport helpers.
+Pass the request context to header overrides so static headers apply and unresolved identity variables stay omitted.
 Keep evaluation request and Responses result conversion in the adapter. Do not add another sending policy.
+
 Evaluation bypasses account-configured model mappings and gateway model admission.
 Non-Lite OpenAI OAuth requests retain native model-name normalization through `normalizeOpenAIModelForUpstream`.
 For example, native normalization changes `gpt-5` to `gpt-5.4`.

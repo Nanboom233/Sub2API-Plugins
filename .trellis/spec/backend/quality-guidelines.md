@@ -4,7 +4,7 @@
 
 Use [administrator evaluation](./runtime-installation.md), [native inspection](./native-inspection.md), and [binary delivery](./minimal-linux-delivery.md) for current contracts.
 Delivery uses the selected upstream tag on Linux amd64/arm64, Darwin amd64/arm64, and Windows amd64.
-Sub2API v0.2.24 is the verified integration baseline.
+Sub2API v0.2.25 is the verified integration baseline.
 Installer version mismatches produce warnings and require explicit confirmation. Matching executable versions need no version prompt.
 The common build downloads upstream source and discovers initialized plugin submodules with production patches under `plugins/`.
 Each plugin and the template retain a complete aligned build kit. Local builds and CI use the same argument-free entry.

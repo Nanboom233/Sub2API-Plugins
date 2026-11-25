@@ -2,7 +2,7 @@
 
 ## 1. Scope / Trigger
 
-The `sub2api-quota-extension` plugin adds default upstream quota detection and custom JavaScript queries on Sub2API v0.2.24.
+The `sub2api-quota-extension` plugin adds default upstream quota detection and custom JavaScript queries on Sub2API v0.2.25.
 Both paths use the existing account-management usage column for API-key accounts.
 Both paths synchronize account scheduling state from reported balance and window utilization.
 Default detection also synchronizes native account expiration and shares unsupported probe memoization with billing probes.
@@ -89,6 +89,9 @@ Allow manual usage refreshes and manual billing probes to run even when memoized
 Do not memoize transport errors, read timeouts, oversize bodies, HTTP 401, 403, 429, or 5xx responses.
 Clear the saved identity when a later probe succeeds or the probe identity changes.
 
+Centralize billing-probe failure memoization in `persistProbeFailure` after snapshot persistence succeeds.
+Leave `fetchBilling` and `PreviewGroup` free of memoization writes.
+
 ### Scheduling synchronization
 
 Synchronize non-error usage results from default detection and saved scripts into account scheduling state.
@@ -142,7 +145,7 @@ For unchanged identity and script, merge quota-managed keys from that locked row
 A script-only change retains unsupported-probe state while clearing scheduling state. Identity changes retain their established cleanup rules.
 Preserve current expiration unless the administrator supplies a value that differs from the pre-edit account snapshot.
 An unchanged expiration submitted by a full form must not replace a newer probe expiration.
-The billing-settings update accepts the previous expiration as an optional final argument. Existing calls can omit it.
+Pass `MergeAPIKeyQuotaState` and `PreviousExpiresAt` on `AccountBillingSettingsUpdate`. Zero-value callers skip the quota merge.
 Retain current temporary pauses unless an identity or script edit clears a quota pause.
 Run the locked merge, native billing-settings update, and scheduler event in one transaction.
 Refresh the scheduler snapshot after commit. Keep existing repository callers and billing-settings contracts usable.
@@ -198,13 +201,15 @@ Use pure Go Goja at `v0.0.0-20261024144015-2a9269b6b6de` inside the existing exe
 Keep its `regexp2/v2 v2.8.1` requirement, also selected for the upstream tokenizer.
 Create one runtime per invocation. Use synchronous calls without Node, timers, module loading, shell, or filesystem APIs.
 Expose `http.request({url, method?, headers?, body?}) -> {status, body}`. The default method is GET, and body values are strings.
-Reuse configured URL policy, proxy, header overrides, transport profile, and TLS profile.
+Reuse configured URL policy, proxy, context-scoped header overrides, transport profile, and TLS profile.
 Disable redirects and keep the existing 64 KiB response bound.
 Share the existing ten-second deadline across JavaScript, host HTTP work, and result conversion.
 Use runtime interruption for JavaScript and the same Go context for HTTP. Keep a call-stack bound.
 Reject Promise results. Keep script-controlled exception text conversion under the same deadline.
 Goja has no hard per-runtime memory quota. Administrator-authored scripts can exhaust server process memory.
+
 Do not log response bodies or credentials. Redact saved account credentials, proxy credentials, and header-override values from error text.
+Read configured overrides through `GetHeaderOverrides` so values containing identity variables are redacted too.
 Host diagnostics do not append source, header, or response-body dumps. Administrator-authored exceptions retain their message after this redaction.
 
 ### Draft tests

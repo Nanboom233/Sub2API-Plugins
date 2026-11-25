@@ -3,7 +3,7 @@
 ## 1. Scope / Trigger
 
 Use this contract when changing native Gemini signature normalization, recovery, or its administrator setting.
-The verified integration baseline is Sub2API v0.2.24.
+The verified integration baseline is Sub2API v0.2.25.
 Owner: [production patch](../../../plugins/gemini-signature-rectifier/patches/gemini-signature-rectifier.patch).
 
 `GeminiMessagesCompatService.ForwardNative` owns normalization and recovery across four request builders:
